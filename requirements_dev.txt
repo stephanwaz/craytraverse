@@ -1,0 +1,11 @@
+pip
+bumpversion
+wheel
+pytest
+pytest-runner
+pytest-cov
+setuptools
+scikit-build
+cmake
+ninja
+numpy

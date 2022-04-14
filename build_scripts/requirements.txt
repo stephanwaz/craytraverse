@@ -1,0 +1,8 @@
+wheel
+pytest
+setuptools
+scikit-build
+cmake
+ninja
+numpy
+pybind11
