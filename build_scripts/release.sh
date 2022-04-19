@@ -24,6 +24,7 @@ echo have you confirmed that directory is ready for release?
 echo make sure docker is running...
 echo bash build_scripts/dist_check.sh
 echo update HISTORY.rst
+echo git commit
 
 
 printf "#######################################################\n\n"
@@ -43,7 +44,7 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
             else
                 bumpversion --tag --commit "$1"
             fi
-            bash build_scripts/dist_versions.sh
+            # bash build_scripts/dist_versions.sh
             echo -n "ok to push (y/n)? "
             read -r answer
             if [ "$answer" != "${answer#[Yy]}" ] ;then
