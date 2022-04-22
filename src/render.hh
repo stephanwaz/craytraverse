@@ -41,6 +41,7 @@ public:
     virtual double* operator()(double* vecs, int rows);
     virtual py::array_t<double> py_call(py::array_t<double, py::array::c_style> &vecs);
     virtual void loadscene(char* octname);
+    std::string scene;
 
 protected:
     int nproc = 1;

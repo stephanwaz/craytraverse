@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-project(raytraverse)
+project(craytraverse)
 
 find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
 
@@ -139,15 +139,15 @@ target_include_directories(rtrace_c PRIVATE pybind11/include/pybind11)
 target_include_directories(rcontrib_c PRIVATE pybind11/include/pybind11)
 
 if(SKBUILD)
-    set_target_properties(craytraverse PROPERTIES LIBRARY_OUTPUT_DIRECTORY "raytraverse/")
-    set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "raytraverse/crenderer")
-    set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "raytraverse/crenderer")
+    set_target_properties(craytraverse PROPERTIES LIBRARY_OUTPUT_DIRECTORY "craytraverse/")
+    set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "craytraverse/crenderer")
+    set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "craytraverse/crenderer")
 else()
     # move submodules to raytraverse
     get_filename_component(PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
-    set_target_properties(craytraverse PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/raytraverse/")
-    set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/raytraverse/crenderer/")
-    set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/raytraverse/crenderer/")
+    set_target_properties(craytraverse PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/craytraverse/")
+    set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/craytraverse/crenderer/")
+    set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/craytraverse/crenderer/")
 endif()
 
 # target for building 3 craytraverse modules

@@ -45,6 +45,7 @@ void Rcontrib::resetRadiance() {
   rayrc::ray_pdone(1);
   rayrc::rcontrib_clear();
   rayrc::dcleanup(2);
+  scene = "";
 }
 
 int Rcontrib::py_initialize(pybind11::object arglist) {
@@ -175,10 +176,11 @@ See raytraverse.renderer.Rcontrib
 
 )pbdoc")
           .def("get_instance", [](){return Rcontrib::getInstance();}, py::return_value_policy::reference, doc_get_instance)
-          .def("reset", [](py::args& args){Rcontrib::resetRadiance();}, doc_reset)
+          .def("reset", &Rcontrib::resetRadiance, doc_reset)
           .def("initialize", &Rcontrib::py_initialize, "arglist"_a, doc_initialize)
           .def("load_scene", &Rcontrib::loadscene, "octree"_a, doc_load_scene)
           .def("__call__", &Rcontrib::py_call, "vecs"_a, doc_call)
+          .def_readonly("scene", &Rcontrib::scene)
           .def_property_readonly_static("version", [](py::object) { return rayrc::VersionID; });
 
 #ifdef VERSION_INFO

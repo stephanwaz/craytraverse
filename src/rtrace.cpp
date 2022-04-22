@@ -45,6 +45,7 @@ void Rtrace::resetRadiance() {
   ray::dcleanup(2);
   ray::ray_restore(nullptr);
   srcobj = 0;
+  scene = "";
 }
 
 int Rtrace::py_initialize(pybind11::object arglist) {
@@ -260,7 +261,7 @@ by loading a scene without light sources, sources can be dynamically loaded and 
 Notes
 -----
 
-the cRcontrib instance is best managed from a seperate class that handles argument generation.
+the cRcontrib instance is best managed from a separate class that handles argument generation.
 See raytraverse.renderer.Rtrace
 
 )pbdoc")
@@ -272,6 +273,7 @@ See raytraverse.renderer.Rtrace
           .def("get_sources", &Rtrace::getSources, doc_get_sources)
           .def("__call__", &Rtrace::py_call, "vecs"_a, doc_call)
           .def("update_ospec", &Rtrace::updateOSpec, "vs"_a, doc_update_ospec)
+          .def_readonly("scene", &Rtrace::scene)
           .def_property_readonly_static("version", [](py::object) { return ray::VersionID; });
 
 #ifdef VERSION_INFO

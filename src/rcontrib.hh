@@ -36,7 +36,7 @@ public:
     double* operator()(double* vecs, int rows) override;
     py::array_t<double> py_call(py::array_t<double, py::array::c_style> &vecs) override;
     void loadscene(char* octname) override;
-    static void resetRadiance();
+    void resetRadiance();
 };
 
 

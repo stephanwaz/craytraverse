@@ -63,6 +63,7 @@ int Renderer::initialize(int iargc, char** iargv) {
 
 void Renderer::loadscene(char* octname) {
   octree = octname;
+  scene = octree;
 }
 
 py::array_t<double> Renderer::py_call(py::array_t<double, py::array::c_style> &vecs) {

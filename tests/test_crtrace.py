@@ -40,7 +40,6 @@ def test_empty_reset(tmpdir):
     r = cRtrace.get_instance()
     r.initialize(gargs)
     r.load_scene("sky.oct")
-    
     r.reset()
     r.reset()
     assert True
