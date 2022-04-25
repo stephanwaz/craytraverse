@@ -194,6 +194,7 @@ target_link_libraries(evalglare rtrad libreetz)
 
 # from cal
 add_executable(cnt Radiance/src/cal/cnt.c)
+target_link_libraries(cnt rtrad)
 
 add_executable(total Radiance/src/cal/total.c)
 target_link_libraries(total rtrad ${LIB_M})
