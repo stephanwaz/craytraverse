@@ -261,7 +261,7 @@ by loading a scene without light sources, sources can be dynamically loaded and 
 Notes
 -----
 
-the cRcontrib instance is best managed from a separate class that handles argument generation.
+the cRtrace instance is best managed from a separate class that handles argument generation.
 See raytraverse.renderer.Rtrace
 
 )pbdoc")

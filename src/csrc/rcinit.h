@@ -24,10 +24,7 @@
 extern "C" {
 #endif
 
-#include <errno.h>
-extern void	rterror(int etype, char *emsg);
-#define error rterror   /* avoid Linux library name collision */
-#include "rterror.h"
+#include "error_mod.h"
 
 extern RREAL *output_values;
 extern int return_value_count;

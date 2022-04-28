@@ -18,28 +18,20 @@
  * https://www.radiance-online.org/download-install/license
  */
 
-#ifndef _RAD_RTINIT_H_
-#define _RAD_RTINIT_H_
+#ifndef _RAD_ERROR_H_
+#define _RAD_ERROR_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "error_mod.h"
 
-extern int return_value_count;
-
-static void onsig(int  signo);
-static void sigdie(int  signo, char  *msg);
-extern int rtinit(int  argc, char  **argv);
-extern void rtrace_loadscene(char* octname);
-extern int rtrace_loadsrc(char* srcname, int freesrc);
-extern int setoutput2(char *vs);
-extern void rtrace_setup(int nproc);
-extern RREAL* rtrace_call(double *vptr, int nproc, int raycount);
-void oputrad(RAY  *r);
+#include <errno.h>
+extern void	rterror(int etype, char *emsg);
+#define error rterror   /* avoid Linux library name collision */
+#include "rterror.h"
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _RAD_RTMAIN_H_ */
+#endif /* _RAD_ERROR_H_ */
 
