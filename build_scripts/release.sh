@@ -44,7 +44,7 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
             else
                 bumpversion --tag --commit "$1"
             fi
-            # bash build_scripts/dist_versions.sh
+            bash build_scripts/dist_versions.sh
             echo -n "ok to push (y/n)? "
             read -r answer
             if [ "$answer" != "${answer#[Yy]}" ] ;then
