@@ -37,7 +37,7 @@ public:
     py::array_t<double> py_call(py::array_t<double, py::array::c_style> &vecs) override;
     void loadscene(char* octname) override;
     int updateOSpec(char *vs);
-    py::array_t<double> getSources();
+    py::tuple getSources();
     void resetRadiance();
     void loadsrc(char* srcname, int freesrc);
 };

@@ -233,7 +233,7 @@ def test_get_sources(tmpdir):
     r = cRtrace.get_instance()
     r.reset()
     r.initialize(args)
-    r.load_scene("scene.oct")
+    r.load_scene("mirror.oct")
     
 
     def load_sun(sun, val):
@@ -247,7 +247,7 @@ def test_get_sources(tmpdir):
         os.remove(srcdef)
 
     load_sun((0, -.5, 1), 1000000)
-    sources = r.get_sources().reshape(-1, 5)
+    r.load_source("light.rad", 0)
+    sources, distant = r.get_sources()
     a = [ 0., -0.4472136, 0.89442719]
     assert np.allclose(a, sources[0, 0:3])
-    assert np.isclose(sources[0, 4], sources[0, 3]**2*np.pi)

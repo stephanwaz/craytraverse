@@ -99,19 +99,23 @@ void Rtrace::loadsrc(char *srcname, int freesrc) {
   srcobj += ray::rtrace_loadsrc(srcname, freesrc);
 }
 
-py::array_t<double> Rtrace::getSources() {
-  py::array_t<double> sources(ray::nsources * 5);
+pybind11::tuple Rtrace::getSources() {
+  int outputc = 5;
+  py::array_t<bool> sourcetype(ray::nsources);
+  py::array_t<double> sources(ray::nsources * outputc);
+  py::buffer_info stype = sourcetype.request();
   py::buffer_info sout = sources.request();
   auto *sarr = (double *) sout.ptr;
+  auto *tarr = (bool *) stype.ptr;
   for (size_t idx = 0; idx < ray::nsources; idx++) {
-    sarr[idx * 3] = ray::source[idx].sloc[0];
-    sarr[idx * 3 + 1] = ray::source[idx].sloc[1];
-    sarr[idx * 3 + 2] = ray::source[idx].sloc[2];
-    sarr[idx * 3 + 3] = ray::source[idx].srad;
-    sarr[idx * 3 + 4] = ray::source[idx].ss2;
-
+    sarr[idx * outputc] = ray::source[idx].sloc[0];
+    sarr[idx * outputc + 1] = ray::source[idx].sloc[1];
+    sarr[idx * outputc + 2] = ray::source[idx].sloc[2];
+    sarr[idx * outputc + 3] = ray::source[idx].srad;
+    sarr[idx * outputc + 4] = ray::source[idx].ss2;
+    tarr[idx] = (ray::source[idx].sflags & SDISTANT) > 0;
   }
-  return sources;
+  return py::make_tuple(sources.reshape({ray::nsources, outputc}), sourcetype);
 }
 
 using namespace pybind11::literals;
@@ -197,8 +201,10 @@ const char* doc_get_sources =
 
 Returns
 -------
-ncomp: int
-    number of components renderer will return, or -1 on failure.
+sources: np.array
+    shape: (N, 5) for each source x,y,z position (or direction), maximum radius, solid angle (or area)
+distant: np.array
+    shape: (N,) True if source is distant (so x,y,z should be interpreted as direction)
 )pbdoc";
 
 
