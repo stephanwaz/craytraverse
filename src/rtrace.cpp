@@ -52,6 +52,7 @@ int Rtrace::py_initialize(pybind11::object arglist) {
   Renderer::py_initialize(arglist.ptr());
   ray::ray_restore(nullptr);
   nproc = ray::rtinit(argc, argv);
+  rvc = ray::return_value_count;
   return nproc;
 }
 
@@ -59,6 +60,7 @@ int Rtrace::initialize(int iargc, char **iargv) {
   Renderer::initialize(iargc, iargv);
   ray::ray_restore(nullptr);
   nproc = ray::rtinit(argc, argv);
+  rvc = ray::return_value_count;
   return nproc;
 }
 
@@ -73,13 +75,12 @@ void Rtrace::loadscene(char *octname) {
 
 py::array_t<double> Rtrace::py_call(py::array_t<double, py::array::c_style> &vecs) {
   int rows = vecs.shape(0);
-  int cols = ray::return_value_count;
   py::buffer_info vbuff = vecs.request();
   auto *vptr = (double *) vbuff.ptr;
 
   double* buff = ray::rtrace_call(vptr, nproc, vecs.shape(0));
 
-  return py::array_t<double>({rows, cols}, buff);
+  return py::array_t<double>({rows, rvc}, buff);
 }
 
 double* Rtrace::operator()(double* vecs, int rows){

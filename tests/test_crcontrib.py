@@ -106,22 +106,31 @@ def test_rcontrib_call(capfd, tmpdir):
     0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
     0	0	0"""
     check = np.fromstring(check, sep=' ').reshape(-1, 36, 3)
-    check = np.einsum('ikj,j->ik', check, [47.435/179, 119.93/179, 11.635/179])
+    checkb = np.einsum('ikj,j->ik', check, [47.435/179, 119.93/179, 11.635/179]).reshape(-1, 36, 1)
 
     engine = cRcontrib.get_instance()
     
     args = ['rcontrib', '-n', '12', '-V+', '-u+', '-ab', '16', '-av', '0', '0', '0', 
             '-aa', '0', '-as', '0', '-dc', '1', '-dt', '0', '-lr', '-14', '-ad', 
             '1800', '-lw', '0.00022222222222222223', '-st', '0', '-ss', '16', 
-            '-c', '1', '-I+', '-ab', '2', '-ad', '600', '-as', '300', '-c', '1', 
+            '-c', '1', '-I+', '-ab', '2', '-ad', '600', '-as', '300', '-c', '10', 
             '-lw', '1e-5', '-e', 'side:6', '-f', 'scbins.cal', '-b', 'bin', 
             '-bn', '36', '-m', 'skyglow']
     engine.initialize(args)
     engine.load_scene("sky2.oct")
     vecs = np.loadtxt('rays2.txt')
     test = engine(vecs)
-    # engine.reset()
-    # assert np.allclose(check, test, atol=.03)
+    print(test.shape, checkb.shape)
+    engine.reset()
+    assert np.allclose(checkb, test, atol=.03)
+    args = args[0:1] + ['-Z-'] + args[1:]
+    engine.initialize(args)
+    engine.load_scene("sky2.oct")
+    vecs = np.loadtxt('rays2.txt')
+    test = engine(vecs)
+    assert np.allclose(check, test, atol=.03)
+    
+    
 
 
 

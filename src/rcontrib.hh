@@ -30,6 +30,7 @@ private:
     static Rcontrib* renderer;
 
 public:
+    int srcn = 1;
     static Rcontrib& getInstance();
     int py_initialize(pybind11::object arglist);
     int initialize(int iargc, char** iargv) override;

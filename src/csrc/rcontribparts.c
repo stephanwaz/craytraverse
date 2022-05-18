@@ -129,8 +129,10 @@ addmodifier(char *modn, char *outf, char *prms, char *binv, int bincnt)
   LUENT	*lep = lu_find(&modconttab,modn);
   MODCONT	*mp;
   EPNODE	*ebinv;
-  int	i;
-  return_value_count += bincnt;
+  if (outbright)
+    return_value_count += bincnt;
+  else
+    return_value_count += bincnt * 3;
   if (lep->data != NULL) {
     sprintf(errmsg, "duplicate modifier '%s'", modn);
     error(USER, errmsg);

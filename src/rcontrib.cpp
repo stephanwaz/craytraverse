@@ -50,17 +50,23 @@ void Rcontrib::resetRadiance() {
 
 int Rcontrib::py_initialize(pybind11::object arglist) {
   Renderer::py_initialize(arglist.ptr());
-//  for(int i = 0; i < argc; i++){
-//    std::cout<<argv[i]<<std::endl;
-//  }
   nproc = rayrc::rcontrib_init(argc, argv);
+  if (rayrc::outbright)
+    rvc = 1;
+  else
+    rvc = 3;
+  srcn = rayrc::return_value_count / rvc;
   return nproc;
 }
 
 int Rcontrib::initialize(int iargc, char **iargv) {
   Renderer::initialize(iargc, iargv);
   nproc = rayrc::rcontrib_init(argc, argv);
-  rvc = rayrc::return_value_count;
+  if (rayrc::outbright)
+    rvc = 1;
+  else
+    rvc = 3;
+  srcn = rayrc::return_value_count / rvc;
   return nproc;
 }
 
@@ -72,12 +78,11 @@ void Rcontrib::loadscene(char* octname) {
 
 py::array_t<double> Rcontrib::py_call(py::array_t<double, py::array::c_style> &vecs) {
   int rows = vecs.shape(0);
-  int cols = rayrc::return_value_count;
   py::buffer_info vbuff = vecs.request();
   auto *vptr = (double *) vbuff.ptr;
   rayrc::rcontrib_call(vptr, rows);
   double* buff = rayrc::output_values;
-  return py::array_t<double>({rows, cols}, buff);
+  return py::array_t<double>({rows, srcn, rvc}, buff);
 }
 
 double* Rcontrib::operator()(double* vecs, int rows){
