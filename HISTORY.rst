@@ -2,6 +2,10 @@
 History
 =======
 
+0.1.2 (2022-05-19)
+------------------
+* added color-channel support
+
 0.1.1 (2022-04-28)
 ------------------
 * added scene property to render objects available from python

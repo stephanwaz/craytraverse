@@ -15,7 +15,7 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
     if [ "$answer" != "${answer#[Yy]}" ] ;then
 
         docker build . --tag crayttest
-        docker run -it --name crayt0 --mount type=bind,source="$(pwd)"/dist,target=/wheelhouse crayttest /bin/bash build_scripts/docker_run.sh cp39-cp39
+        docker run -it --name crayt0 --mount type=bind,source="$(pwd)"/dist,target=/wheelhouse crayttest /bin/bash build_scripts/docker_run.sh /wheelhouse/ cp39-cp39
         docker rm crayt0
         docker image rm crayttest
     fi

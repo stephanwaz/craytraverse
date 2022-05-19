@@ -3,7 +3,11 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 project(craytraverse)
 
-find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+    find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+else()
+    find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
+endif()
 
 find_package(X11)
 if(X11_FOUND)
