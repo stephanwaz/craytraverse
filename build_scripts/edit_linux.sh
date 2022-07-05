@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# this starts and container inside dev enviironment for live edits/testing from mac side.
+# this starts a container inside dev environment for live edits/testing from mac side.
 
 # Open Docker, only if is not running
 if (! docker stats --no-stream &> /dev/null); then
