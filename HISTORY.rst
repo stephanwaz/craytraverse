@@ -2,6 +2,10 @@
 History
 =======
 
+0.1.3 (2022-07-05)
+------------------
+* error messages in linux
+
 0.1.2 (2022-05-19)
 ------------------
 * added color-channel support
