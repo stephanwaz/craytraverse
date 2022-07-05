@@ -95,7 +95,7 @@ else()
 endif()
 
 set(RAYCALLS raycalls.c ${rayp_SOURCES} rayfifo.c)
-# rcontrib needs a seperate call library from rtrace to avoid redundant declerations
+# rcontrib needs a separate call library from rtrace to avoid redundant declerations
 # in the radiance source.
 set(RCCALLFILES ${rayp_SOURCES} rayfifo.c)
 
@@ -109,7 +109,7 @@ list(TRANSFORM RAYCALLS PREPEND Radiance/src/rt/)
 list(TRANSFORM RCCALLFILES PREPEND Radiance/src/rt/)
 list(TRANSFORM RTFILES PREPEND Radiance/src/rt/)
 
-# patch
+# patch (need to patch otypes only to move it out of common)
 list(TRANSFORM rtrad_SOURCES REPLACE Radiance/src/common/error.c csrc/error.c)
 list(TRANSFORM rtrad_SOURCES REPLACE Radiance/src/common/otypes.c csrc/otypes.c)
 

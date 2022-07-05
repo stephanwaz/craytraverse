@@ -15,8 +15,6 @@ static const char RCSid[] = "$Id: otypes.c,v 2.6 2013/03/09 19:20:31 greg Exp $"
 
 #include  "otypes.h"
 
-#include "error_mod.h"
-
 int
 otype(				/* get object function number from its name */
 	char  *ofname

@@ -20,7 +20,8 @@ struct erract	erract[NERRS] = ERRACT_INIT;
 
 char  errmsg[2048];		/* global error message buffer */
 
-
+//duplicate definitions needed to also compile standalone binaries.
+//ugly but works for now.
 void
 error(etype, emsg)		/* report error, quit if necessary */
 int  etype;

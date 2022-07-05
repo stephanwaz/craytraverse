@@ -5,7 +5,9 @@
 #ifndef _RAD_STANDARD_H_
 #define _RAD_STANDARD_H_
 
+
 #include  "copyright.h"
+//this works to patch all files with rterror except those in common (as it uses that version of standard.h)
 #include  "error_mod.h"
 #include  "rtio.h"
 #include  "rtmisc.h"
