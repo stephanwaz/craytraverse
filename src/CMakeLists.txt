@@ -27,7 +27,7 @@ endif()
 add_subdirectory(pybind11)
 include(pybind11_add_module_libs.cmake)
 
-include_directories(./Radiance/src/common ./Radiance/src/util)
+include_directories(./csrc ./Radiance/src/common ./Radiance/src/util)
 
 execute_process(COMMAND git log --pretty=format:'%h' -n 1
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Radiance
@@ -112,7 +112,6 @@ list(TRANSFORM RTFILES PREPEND Radiance/src/rt/)
 # patch
 list(TRANSFORM rtrad_SOURCES REPLACE Radiance/src/common/error.c csrc/error.c)
 list(TRANSFORM rtrad_SOURCES REPLACE Radiance/src/common/otypes.c csrc/otypes.c)
-list(TRANSFORM RADIANCE_RT REPLACE Radiance/src/rt/source.c csrc/source.c)
 
 add_library(rtrad STATIC ${rtrad_SOURCES})
 add_library(radiance STATIC ${VERSION_FILE} ${RADIANCE_COMMON} ${RADIANCE_RT})

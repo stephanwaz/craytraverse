@@ -28,6 +28,7 @@ extern "C" {
  */
 
 #include "copyright.h"
+#include "error_mod.h"
 #include <signal.h>
 #include <time.h>
 #include "rcontrib.h"

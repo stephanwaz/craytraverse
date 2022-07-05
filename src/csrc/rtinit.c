@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 #include "copyright.h"
-
+#include "error_mod.h"
 #include  <signal.h>
 
 #include  "platform.h"

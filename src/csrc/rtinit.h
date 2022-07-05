@@ -24,7 +24,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "error_mod.h"
 
 extern int return_value_count;
 

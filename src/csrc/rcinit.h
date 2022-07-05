@@ -24,8 +24,6 @@
 extern "C" {
 #endif
 
-#include "error_mod.h"
-
 extern RREAL *output_values;
 extern int return_value_count;
 extern long putcount;

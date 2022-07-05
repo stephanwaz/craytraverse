@@ -37,7 +37,7 @@
 #include  "font.h"
 #include  "pmapray.h"
 
-extern void	rterror(int etype, char *emsg);
+extern void rterror(int etype, char *emsg);
 #define error rterror   /* avoid Linux library name collision */
 #include "rterror.h"
 
