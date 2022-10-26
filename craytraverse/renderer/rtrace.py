@@ -13,7 +13,6 @@ from craytraverse.crenderer import cRtrace
 
 rtrace_instance = cRtrace.get_instance()
 
-
 class Rtrace(Renderer):
     """singleton wrapper for c++ raytrraverse.crenderer.cRtrace class
 
