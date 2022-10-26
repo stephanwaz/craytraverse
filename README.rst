@@ -1,5 +1,5 @@
 ====================
-craytraverse (0.1.4)
+craytraverse (0.1.5)
 ====================
 
 .. image:: https://img.shields.io/pypi/v/craytraverse?style=flat-square

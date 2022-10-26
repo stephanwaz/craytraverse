@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 set(CMAKE_CXX_STANDARD 14)
 project(craytraverse)
 
-add_compile_definitions(VERSION_INFO="0.1.4")
+add_compile_definitions(VERSION_INFO="0.1.5")
 
 add_subdirectory(src)
 set(CMAKE_VERBOSE_MAKEFILE on)
