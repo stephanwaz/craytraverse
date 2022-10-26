@@ -14,5 +14,7 @@ while (! docker stats --no-stream &> /dev/null); do
 done
 fi
 
+#pip wheel . --no-deps -w dist/
+#pip install dist/craytraverse-0.1.4-cp39-cp39-linux_x86_64.whl
 docker run -it --name crayte --workdir="/working" --mount type=bind,source="$(pwd)",target=/working craytmany /bin/bash -c 'export PATH=/opt/python/cp39-cp39/bin:$PATH; /bin/bash'
 docker rm crayte

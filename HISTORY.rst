@@ -2,6 +2,12 @@
 History
 =======
 
+0.1.5 (2022-10-26)
+------------------
+* fixed bug from updated radiance where calcontext was not getting
+  reinitialized after rcontrib.reset()
+* added basic usable renderer objects (without raytraverse)
+
 0.1.4 (2022-09-27)
 ------------------
 * updated radiance

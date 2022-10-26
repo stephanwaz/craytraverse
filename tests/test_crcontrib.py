@@ -5,7 +5,7 @@
 import os
 import shutil
 
-from craytraverse.crenderer import cRcontrib
+from craytraverse.renderer import Rcontrib
 import numpy as np
 import pytest
 
@@ -24,10 +24,34 @@ def tmpdir(tmp_path_factory):
     os.chdir(cpath)
 
 
+@pytest.fixture(scope="function")
+def tmpdir2(tmp_path_factory):
+    data = str(tmp_path_factory.mktemp("data"))
+    shutil.copytree('tests/rcontrib_reset/', data + '/test2')
+    cpath = os.getcwd()
+    # use temp
+    path = data + '/test2'
+    # uncomment to use actual (to debug results)
+    path = cpath + '/tests/rcontrib_reset'
+    os.chdir(path)
+    yield path
+    os.chdir(cpath)
+
+
+def test_rcontrib_reset(tmpdir2):
+    args = "-V+ -I+ -ab 3 -ad 60000 -lw 1e-5"
+    r = Rcontrib(args, "box.oct", skyres=6, ground=False, modname="skyMat")
+    vec = np.array(((0,0,1,0,0,1),), dtype=float)
+    r1 = r(vec)
+    r.reset()
+    r = Rcontrib(args, "box.oct", skyres=6, ground=False, modname="skyMat")
+    r2 = r(vec)
+    r.reset()
+    assert np.allclose(r1, r2, atol=.05)
+
+
 # breaks test/example foor soome reason (must be in c-code!!!)
 def test_rcontrib_call(capfd, tmpdir):
-    args = ('-V+ -I+ -ab 2 -ad 60000 -as 30000 -lw 1e-7 -e side:6'
-            ' -f scbins.cal -b bin -bn 36 -m skyglow ')
     check = """0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
     0	0	0	0	0	3.856109e-02	3.814993e-02	3.793787e-02
     3.327852e-02	3.296014e-02	3.279520e-02	2.923070e-02
@@ -108,27 +132,20 @@ def test_rcontrib_call(capfd, tmpdir):
     check = np.fromstring(check, sep=' ').reshape(-1, 36, 3)
     checkb = np.einsum('ikj,j->ik', check, [47.435/179, 119.93/179, 11.635/179]).reshape(-1, 36, 1)
 
-    engine = cRcontrib.get_instance()
-    
-    args = ['rcontrib', '-n', '12', '-V+', '-u+', '-ab', '16', '-av', '0', '0', '0', 
-            '-aa', '0', '-as', '0', '-dc', '1', '-dt', '0', '-lr', '-14', '-ad', 
-            '1800', '-lw', '0.00022222222222222223', '-st', '0', '-ss', '16', 
-            '-c', '1', '-I+', '-ab', '2', '-ad', '600', '-as', '300', '-c', '10', 
-            '-lw', '1e-5', '-e', 'side:6', '-f', 'scbins.cal', '-b', 'bin', 
-            '-bn', '36', '-m', 'skyglow']
-    engine.initialize(args)
-    engine.load_scene("sky2.oct")
+    args = "-V+ -I+ -ab 2 -ad 600 -as 300 -lw 1e-5"
+    engine = Rcontrib(args, "sky2.oct", skyres=6, ground=False)
+
     vecs = np.loadtxt('rays2.txt')
     test = engine(vecs)
-    print(test.shape, checkb.shape)
     engine.reset()
-    assert np.allclose(checkb, test, atol=.03)
-    args = args[0:1] + ['-Z-'] + args[1:]
-    engine.initialize(args)
-    engine.load_scene("sky2.oct")
+    assert np.allclose(checkb, test, atol=.05)
+
+    engine = Rcontrib(args + ' -Z-', "sky2.oct", skyres=6, ground=False)
+
     vecs = np.loadtxt('rays2.txt')
     test = engine(vecs)
-    assert np.allclose(check, test, atol=.03)
+    assert np.allclose(check, test, atol=.05)
+    engine.reset()
     
     
 

@@ -1,0 +1,93 @@
+void plastic wallOpaqueMat
+0
+0
+5	.5	.5	.5
+	0	0
+
+void plastic floorMat
+0
+0
+5	.1	.1	.1
+	.1	.02
+
+void glass glassMat
+0
+0
+3	.8	.8	.8
+
+void mixfunc wallMat
+4 glassMat wallOpaqueMat 'if(1-sqrt(Px^2),if(Pz-1,1,0),0)' .
+0
+0
+
+void plastic ceilingMat
+0
+0
+5	.7	.7	.7
+	0	0
+
+# genprism wallMat wallObj 4 -2. -2. 2. -2. 2. 2. -2. 2. -l 0 0 3.2 -e
+
+wallMat polygon wallObj.1
+0
+0
+12
+	                -2	                -2	                 0
+	                -2	                -2	               3.2
+	                 2	                -2	               3.2
+	                 2	                -2	                 0
+
+wallMat polygon wallObj.2
+0
+0
+12
+	                 2	                -2	                 0
+	                 2	                -2	               3.2
+	                 2	                 2	               3.2
+	                 2	                 2	                 0
+
+wallMat polygon wallObj.3
+0
+0
+12
+	                 2	                 2	                 0
+	                 2	                 2	               3.2
+	                -2	                 2	               3.2
+	                -2	                 2	                 0
+
+wallMat polygon wallObj.4
+0
+0
+12
+	                -2	                 2	                 0
+	                -2	                 2	               3.2
+	                -2	                -2	               3.2
+	                -2	                -2	                 0
+
+ceilingMat polygon ceilingObj
+0
+0
+12	-2.	-2.	3.2
+	-2.	2.	3.2
+	2.	2.	3.2
+	2	-2.	3.2
+
+floorMat polygon floorObj
+0
+0
+12	-2.	-2.	0.
+	2.	-2.	0.
+	2.	2.	0.
+	-2.	2.	0.
+
+void glow skyMat
+0
+0
+4	1.	1.	1.
+	0.
+
+skyMat source skyObj
+0
+0
+4	0.	0.	1.
+	360.
