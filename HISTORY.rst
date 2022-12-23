@@ -2,6 +2,11 @@
 History
 =======
 
+0.1.6 (2022-12-23)
+------------------
+* changed rontrib_clear to hopefully avoid segfault occuring after many resets
+  the diagnosis was using lu_delete instead of lu_done. tested on mac and linux.
+
 0.1.5 (2022-10-26)
 ------------------
 * fixed bug from updated radiance where calcontext was not getting
