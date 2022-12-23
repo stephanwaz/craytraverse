@@ -511,9 +511,7 @@ void rcontrib_call(const double *vecs, int rows){
 }
 
 void rcontrib_clear(){
-//  lu_doall(&modconttab, &lu_delete, NULL);
-  for (int i = 0; i < nmods; i++)
-    lu_delete(&modconttab, modname[i]);
+  lu_done(&modconttab);
   nmods = 0;
 }
 

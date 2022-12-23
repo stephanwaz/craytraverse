@@ -140,7 +140,7 @@ values: np.array
 
 
 PYBIND11_MODULE(rcontrib_c, m) {
-  py::class_<Rcontrib>(m, "cRcontrib", R"pbdoc(singleton interface to the Radiance rcontrib executable.
+  py::class_<Rcontrib, std::unique_ptr<Rcontrib, py::nodelete>>(m, "cRcontrib", R"pbdoc(singleton interface to the Radiance rcontrib executable.
 
 See the rcontrib man page for a full description of the programs functionality. Instance is initialized with a list
 of arguments similar to the command line tool, but with several differences:

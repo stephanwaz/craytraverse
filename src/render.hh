@@ -32,10 +32,10 @@ class Renderer {
 
 protected:
     Renderer() = default;
+    ~Renderer() = default;
 
 public:
     int rvc = 1;
-    ~Renderer() = default;
     int py_initialize(PyObject* arglist);
     virtual int initialize(int iargc, char** iargv);
     virtual double* operator()(double* vecs, int rows);
