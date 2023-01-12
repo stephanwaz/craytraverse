@@ -19,7 +19,7 @@ recursive-exclude * *.so
 recursive-include build_scripts *.sh
 recursive-include build_scripts Docker*
 
-recursive-include raytraverse *.cal
+recursive-include craytraverse *.cal
 recursive-exclude src .*
 include src/*.c src/*.h src/*.cpp src/*.hh src/*.txt src/*.cmake src/*.sh src/sparse-checkout
 include src/csrc/*.c src/csrc/*.h
