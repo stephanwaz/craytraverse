@@ -36,6 +36,7 @@ extern int setoutput2(char *vs);
 extern void rtrace_setup(int nproc);
 extern RREAL* rtrace_call(double *vptr, int nproc, int raycount);
 void oputrad(RAY  *r);
+extern char *flaglist[];
 
 #ifdef __cplusplus
 }

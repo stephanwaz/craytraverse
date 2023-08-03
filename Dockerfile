@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM craytmany:latest
+FROM  --platform=linux/amd64 craytmany
 
 SHELL ["/bin/bash", "-c"]
 

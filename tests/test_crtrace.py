@@ -283,9 +283,14 @@ def test_get_model_details(tmpdir):
 
     r.update_ospec("vLNM")
     test = r(rays)
+    print(test.shape)
     mtest = test[:,-1]
     assert np.allclose(check_d, test[:,:-1])
     for c in set(check_m):
         m = mtest[[i == c for i in check_m]]
+        print(c, m)
         assert np.all(m == m[0])
+    r.set_args("-u- -ab 0 -F glz -F sglz")
+    r.update_ospec("vMF")
+    print(r(rays))
 #

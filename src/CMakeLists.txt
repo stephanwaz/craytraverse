@@ -3,11 +3,13 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 project(craytraverse)
 
+set(Python3_FIND_VIRTUALENV FIRST)
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
     find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 else()
     find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
 endif()
+
 
 find_package(X11)
 if(X11_FOUND)
@@ -111,7 +113,8 @@ list(TRANSFORM RTFILES PREPEND Radiance/src/rt/)
 
 # patch (need to patch otypes only to move it out of common)
 list(TRANSFORM rtrad_SOURCES REPLACE Radiance/src/common/error.c csrc/error.c)
-list(TRANSFORM rtrad_SOURCES REPLACE Radiance/src/common/otypes.c csrc/otypes.c)
+#list(TRANSFORM rtrad_SOURCES REPLACE Radiance/src/common/otypes.c csrc/otypes.c)
+#list(TRANSFORM RAYCALLS REPLACE Radiance/src/rt/raycalls.c csrc/raycalls.c)
 # patch (to make sure calcontext is reset when calling initfunc)
 list(TRANSFORM RADIANCE_RT REPLACE Radiance/src/rt/func.c csrc/func.c)
 

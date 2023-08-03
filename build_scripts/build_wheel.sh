@@ -13,5 +13,5 @@ while (! docker stats --no-stream &> /dev/null); do
 done
 fi
 
-docker run -it --name crayte --workdir="/working" --mount type=bind,source="$(pwd)",target=/working craytmany /bin/bash -c "build_scripts/docker_run.sh dist/ cp$1-cp$1"
+docker run -it --platform=linux/amd64 --name crayte --workdir="/working" --mount type=bind,source="$(pwd)",target=/working craytmany /bin/bash -c "build_scripts/docker_run.sh dist/ cp$1-cp$1"
 docker rm crayte

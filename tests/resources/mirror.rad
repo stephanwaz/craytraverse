@@ -1,0 +1,16 @@
+
+
+
+void mirror refl
+0
+0
+3 .5 .5 .5
+
+
+refl polygon refl.1
+0
+0
+12  -2 -2 0
+	 2 -2 0
+	 2  2 0
+	-2  2 0

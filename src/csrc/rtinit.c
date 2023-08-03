@@ -78,6 +78,8 @@ static int  loadflags = ~IO_FILES;	/* what to load from octree */
 
 int repeat = 1;
 
+char	*flaglist[AMBLLEN+1];
+
 void
 eputsrt(				/* put string to stderr */
         register char  *s
@@ -125,6 +127,8 @@ rtinit(int  argc, char  *argv[])
   int complete = 0;
   int  rval;
   int  i;
+  static char  **flaglp;		/* pointer to build flagged modifier list */
+  int flagincl = -1;
   repeat = 1;
   ambdone();
   freeqstr(ambfile);
@@ -188,6 +192,15 @@ rtinit(int  argc, char  *argv[])
         break;
       case 'o':				/* output */
         outvals = argv[i]+2;
+        break;
+      case 'F':
+          check(2,"s");
+            if (flagincl != 1) {
+                flagincl = 1;
+                flaglp = flaglist;
+            }
+            *flaglp++ = savqstr(argv[++i]);
+            *flaglp = NULL;
         break;
       default:
         goto badopt;

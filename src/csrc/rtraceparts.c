@@ -58,6 +58,7 @@ extern "C" {
 #include  "random.h"
 
 extern int repeat;  /* RAYTRAVERSE MODIFICATION number of times to repeat ray */
+extern char	*flaglist[AMBLLEN+1];
 int return_value_count = 1;
 extern char  *outvals;			/* output values */
 
@@ -418,6 +419,27 @@ oputm(				/* print modifier */
   putchar('\t');
 }
 
+static void
+oputFLAGGED(				/* print flagged material */
+        RAY  *r
+)
+{
+    char  **flaglp;
+    OBJREC	*mat;
+    RREAL omod[1];
+    omod[0] = 0.0;
+    if (r->ro != NULL) {
+        if ((mat = findmaterial(r->ro)) != NULL)
+            for (flaglp = flaglist; *flaglp != NULL; flaglp++)
+                if (strcmp(mat->oname, *flaglp) == 0) {
+                    omod[0] = 1.0;
+                    (*putreal)(omod, 1);
+                    return;
+                }
+    }
+    (*putreal)(omod, 1);
+}
+
 
 static void
 oputM(				/* print material */
@@ -430,17 +452,6 @@ oputM(				/* print material */
   if (r->ro != NULL)
     omod[0] = r->ro->omod;
   (*putreal)(omod, 1);
-
-
-//  OBJREC	*mat;
-//  if (r->ro != NULL) {
-//    if ((mat = findmaterial(r->ro)) != NULL)
-//      fputs(mat->oname, stdout);
-//    else
-//      fputs(VOIDID, stdout);
-//  } else
-//    putchar('*');
-//  putchar('\t');
 }
 
 void putn(RREAL *v, int n){ /* output to buffer */
@@ -598,6 +609,10 @@ setoutput2(char *vs)      /* provides additional outputspec Z to output radiance
         break;
       case 'M':				/* material */
         *table++ = oputM;
+        ncomp++;
+        break;
+      case 'F':				/* flagged materials */
+        *table++ = oputFLAGGED;
         ncomp++;
         break;
       case 'w':				/* weight */

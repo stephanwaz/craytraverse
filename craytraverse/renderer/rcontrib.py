@@ -95,6 +95,11 @@ class Rcontrib(Renderer):
         return scene
 
     @classmethod
+    def efb_str(cls):
+        """define expressions, cal file and variable name for rcontrib"""
+        return f"-e 'side:{cls.skyres}' -f scbins.cal  -b bin"
+
+    @classmethod
     def set_args(cls, args, nproc=1):
         """prepare arguments to call engine instance initialization
 
@@ -106,8 +111,7 @@ class Rcontrib(Renderer):
             cpu limit
 
         """
-        args = (f" -V+ {args} -w- -e 'side:{cls.skyres}' -f scbins.cal "
-                f"-b bin -bn {cls.srcn} -m {cls.modname}")
+        args = f" -V+ {args} -w- {cls.efb_str()} -bn {cls.srcn} -m {cls.modname}"
         bright = True
         for z in re.findall(r"-Z.?", args):
             if z[-1] in "Z ":

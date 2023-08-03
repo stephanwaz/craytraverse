@@ -81,8 +81,8 @@ if 'sdist' in sys.argv:
 if morecmds:
     setup_dict["cmake_minimum_required_version"] = "3.18"
     # cmake_executable = CMAKE_DEFAULT_EXECUTABLE
+    print("hder")
     sksetup(**setup_dict)
-
 # install executables to bin/ with develop install
 if 'develop' in sys.argv:
     from distutils import dir_util
