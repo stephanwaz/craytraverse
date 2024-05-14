@@ -78,14 +78,15 @@ py::array_t<double> Rtrace::py_call(py::array_t<double, py::array::c_style> &vec
   py::buffer_info vbuff = vecs.request();
   auto *vptr = (double *) vbuff.ptr;
 
-  double* buff = ray::rtrace_call(vptr, nproc, vecs.shape(0));
-
-  return py::array_t<double>({rows, rvc}, buff);
+  auto output = py::array_t<double>({rows, rvc});
+  ray::rtrace_call(vptr, nproc, vecs.shape(0), output.mutable_data());
+  return output;
 }
 
 double* Rtrace::operator()(double* vecs, int rows){
-  double* buff = ray::rtrace_call(vecs, nproc, rows);
-  return buff;
+  auto output = new double [rows * rvc];
+  ray::rtrace_call(vecs, nproc, rows, output);
+  return output;
 }
 
 int Rtrace::updateOSpec(char *vs) {

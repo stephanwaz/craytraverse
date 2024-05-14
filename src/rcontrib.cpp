@@ -80,15 +80,16 @@ py::array_t<double> Rcontrib::py_call(py::array_t<double, py::array::c_style> &v
   int rows = vecs.shape(0);
   py::buffer_info vbuff = vecs.request();
   auto *vptr = (double *) vbuff.ptr;
-  rayrc::rcontrib_call(vptr, rows);
-  double* buff = rayrc::output_values;
-  return py::array_t<double>({rows, srcn, rvc}, buff);
+  auto output = py::array_t<double>({rows, srcn, rvc});
+  rayrc::rcontrib_call(vptr, rows, output.mutable_data());
+  rayrc::output_values = nullptr;
+  return output;
 }
 
 double* Rcontrib::operator()(double* vecs, int rows){
-  rayrc::rcontrib_call(vecs, rows);
-  double* buff = rayrc::output_values;
-  return buff;
+  auto output = new double [rows * srcn * rvc];
+  rayrc::rcontrib_call(vecs, rows, output);
+  return output;
 }
 
 using namespace pybind11::literals;

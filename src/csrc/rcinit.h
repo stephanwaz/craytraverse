@@ -30,7 +30,7 @@ extern long putcount;
 static void rcprintdefaults(void);
 extern int rcontrib_init(int  argc, char  *argv[]);
 extern void rcontrib_loadscene(char* octname);
-extern void rcontrib_call(const double *vecs, int rows);
+extern void rcontrib_call(const double *vecs, int rows, RREAL *output);
 extern void rcontrib_clear(void);
 static int rcinit2(const double *vecs, int raycount);
 extern void parental_loop2(const double *vecs, int raycount);

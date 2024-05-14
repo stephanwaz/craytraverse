@@ -6,7 +6,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # =======================================================================
 import shlex
-
+import numpy as np
 
 class Renderer:
     """Virtual class for wrapping c++ Radiance renderer executable classes
@@ -29,7 +29,9 @@ class Renderer:
 
     @classmethod
     def __call__(cls, rays):
-        return cls.instance(rays)
+        rc = np.copy(rays, 'C')
+        result = cls.instance(rc)
+        return result
 
     def __getstate__(self):
         state = type(self).__dict__.copy()
@@ -54,6 +56,7 @@ class Renderer:
     def reset(cls):
         """reset engine instance and unset associated attributees"""
         cls.instance.reset()
+        cls.nproc = 1
         cls.scene = None
         cls.args = None
         cls._args = None

@@ -429,14 +429,14 @@ quitrc(
   exit(code);
 }
 
-void rcontrib_call(const double *vecs, int rows){
+void rcontrib_call(const double *vecs, int rows, RREAL *output){
   current_vec_cnt = 0;
   putcount = 0;
   static int	ignore_warning_given = 0;
   FVECT		orig, direc;
   double		d;
   int control;
-  output_values = (RREAL *)malloc(sizeof(RREAL) * rows * return_value_count);
+  output_values = output;
   control = rcinit2(vecs, rows);
   if (control == 2){
     return;
