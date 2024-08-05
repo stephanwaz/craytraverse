@@ -477,15 +477,14 @@ rtrace_setup( /* initialize processes */
   }
 }
 
-extern void
+extern RREAL*
 rtrace_call( /* run rtrace process */
         const double *vptr,
         int nproc,
-        int raycount,
-        double *output
+        int raycount
 )
 {
-  output_values = output;
+  output_values = (RREAL *)malloc(sizeof(RREAL) * raycount * return_value_count);
   putcount = 0;
   int i = 0;
   rtrace_setup(nproc);
@@ -519,8 +518,7 @@ rtrace_call( /* run rtrace process */
     }
   }
   ambdone();
-  output_values = NULL;
-//  return output_values;
+  return output_values;
 }
 
 void
