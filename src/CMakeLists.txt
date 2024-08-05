@@ -141,28 +141,24 @@ set_property(TARGET rcontribcfiles PROPERTY C_STANDARD 99)
 target_link_libraries(rtrad ${LIB_M})
 
 # rtrace and rcontrib are built seperately to avoid namespace conflicts
-pybind11_add_module(craytraverse pyhelpers.cpp)
 pybind11_add_module_libs(rtrace_c MODULE render.cpp rtrace.cpp LINKLIBS rtracecfiles raycalls radiance rtrad)
 pybind11_add_module_libs(rcontrib_c MODULE render.cpp rcontrib.cpp LINKLIBS rcontribcfiles rcraycalls radiance rtrad)
-target_include_directories(craytraverse PRIVATE pybind11/include/pybind11)
 target_include_directories(rtrace_c PRIVATE pybind11/include/pybind11)
 target_include_directories(rcontrib_c PRIVATE pybind11/include/pybind11)
 
 if(SKBUILD)
-    set_target_properties(craytraverse PROPERTIES LIBRARY_OUTPUT_DIRECTORY "craytraverse/")
     set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "craytraverse/crenderer")
     set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "craytraverse/crenderer")
 else()
     # move submodules to raytraverse
     get_filename_component(PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
-    set_target_properties(craytraverse PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/craytraverse/")
     set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/craytraverse/crenderer/")
     set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/craytraverse/crenderer/")
 endif()
 
 # target for building 3 craytraverse modules
 ADD_CUSTOM_TARGET(python_all)
-ADD_DEPENDENCIES(python_all rtrace_c rcontrib_c craytraverse)
+ADD_DEPENDENCIES(python_all rtrace_c rcontrib_c)
 
 #add_executable(raytcontrib mainrc.cpp render.cpp rcontrib.cpp)
 #target_link_libraries(raytcontrib PRIVATE pybind11::embed rcontribcfiles rcraycalls radiance rtrad)
