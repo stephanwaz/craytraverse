@@ -102,12 +102,8 @@ void Rtrace::loadsrc(char *srcname, int freesrc) {
 
 pybind11::tuple Rtrace::getSources() {
   int outputc = 5;
-  py::array_t<bool> sourcetype(ray::nsources);
-  py::array_t<double> sources(ray::nsources * outputc);
-  py::buffer_info stype = sourcetype.request();
-  py::buffer_info sout = sources.request();
-  auto *sarr = (double *) sout.ptr;
-  auto *tarr = (bool *) stype.ptr;
+  double sarr[ray::nsources * outputc];
+  bool tarr[ray::nsources];
   for (size_t idx = 0; idx < ray::nsources; idx++) {
     sarr[idx * outputc] = ray::source[idx].sloc[0];
     sarr[idx * outputc + 1] = ray::source[idx].sloc[1];
@@ -116,7 +112,8 @@ pybind11::tuple Rtrace::getSources() {
     sarr[idx * outputc + 4] = ray::source[idx].ss2;
     tarr[idx] = (ray::source[idx].sflags & SDISTANT) > 0;
   }
-  return py::make_tuple(sources.reshape({ray::nsources, outputc}), sourcetype);
+  return py::make_tuple(py::array_t<double>({ray::nsources, outputc}, sarr),
+                        py::array_t<bool>({ray::nsources}, tarr));
 }
 
 using namespace pybind11::literals;

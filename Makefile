@@ -64,5 +64,9 @@ dist: clean ## builds source and wheel package
 	python setup.py sdist bdist_wheel
 	ls -l dist
 
+update: clean
+	pip wheel . --no-deps -w dist/ 
+	pip install --force-reinstall dist/*.whl 
+
 log:
 	git log --graph --all --date=short --pretty=tformat:"%w(80,0,20)%C(auto)%h %C(red bold)%ad:%C(auto)%d%n%w(80,8,8)%s"

@@ -6,6 +6,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # =======================================================================
 import shlex
+import numpy as np
 
 
 class Renderer:
@@ -29,7 +30,9 @@ class Renderer:
 
     @classmethod
     def __call__(cls, rays):
-        return cls.instance(rays)
+        rc = np.copy(rays, 'C')
+        result = cls.instance(rc)
+        return result
 
     def __getstate__(self):
         state = type(self).__dict__.copy()
