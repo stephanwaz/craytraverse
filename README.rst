@@ -23,16 +23,12 @@ The easiest way to install craytraverse is with pip::
     pip install --upgrade pip setuptools wheel
     pip install craytraverse
 
-for a developer install::
-
-	./setup.py develop build install
-
 or if you have cloned this repository::
 
     cd path/to/this/file
     git submodule init
     git submodule update
-    pip install .
+    make update
 
 
 Build
