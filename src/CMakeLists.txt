@@ -3,13 +3,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 project(craytraverse)
 
-set(Python3_FIND_VIRTUALENV FIRST)
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-    find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
-else()
-    find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
-endif()
-
 
 find_package(X11)
 if(X11_FOUND)
@@ -25,9 +18,10 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
     link_directories(/usr/local/lib)
 endif()
 
+set(Python3_FIND_VIRTUALENV FIRST)
+set(PYBIND11_FINDPYTHON ON)
+find_package(pybind11 CONFIG REQUIRED)
 
-add_subdirectory(pybind11)
-include(pybind11_add_module_libs.cmake)
 
 include_directories(./csrc ./Radiance/src/common ./Radiance/src/util)
 
@@ -97,7 +91,7 @@ else()
 endif()
 
 set(RAYCALLS raycalls.c ${rayp_SOURCES} rayfifo.c)
-# rcontrib needs a separate call library from rtrace to avoid redundant declerations
+# rcontrib needs a separate call library from rtrace to avoid redundant declarations
 # in the radiance source.
 set(RCCALLFILES ${rayp_SOURCES} rayfifo.c)
 
@@ -140,9 +134,11 @@ set_property(TARGET rcontribcfiles PROPERTY C_STANDARD 99)
 
 target_link_libraries(rtrad ${LIB_M})
 
-# rtrace and rcontrib are built seperately to avoid namespace conflicts
-pybind11_add_module_libs(rtrace_c MODULE render.cpp rtrace.cpp LINKLIBS rtracecfiles raycalls radiance rtrad)
-pybind11_add_module_libs(rcontrib_c MODULE render.cpp rcontrib.cpp LINKLIBS rcontribcfiles rcraycalls radiance rtrad)
+# rtrace and rcontrib are built separately to avoid namespace conflicts
+pybind11_add_module(rtrace_c MODULE render.cpp rtrace.cpp)
+pybind11_add_module(rcontrib_c MODULE render.cpp rcontrib.cpp)
+target_link_libraries(rtrace_c PRIVATE rtracecfiles raycalls radiance rtrad)
+target_link_libraries(rcontrib_c PRIVATE rcontribcfiles rcraycalls radiance rtrad)
 target_include_directories(rtrace_c PRIVATE pybind11/include/pybind11)
 target_include_directories(rcontrib_c PRIVATE pybind11/include/pybind11)
 
@@ -150,10 +146,9 @@ if(SKBUILD)
     set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "craytraverse/crenderer")
     set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "craytraverse/crenderer")
 else()
-    # move submodules to raytraverse
-    get_filename_component(PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
-    set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/craytraverse/crenderer/")
-    set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PARENT_DIR}/craytraverse/crenderer/")
+    # move submodules to site-packages
+    set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${Python_SITELIB}/craytraverse/crenderer/")
+    set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${Python_SITELIB}/craytraverse/crenderer/")
 endif()
 
 # target for building 3 craytraverse modules
