@@ -78,7 +78,7 @@ char	RCCONTEXT[] = "RC.";		/* our special evaluation context */
 
 void
 eputsrc(				/* put string to stderr */
-        char  *s
+        const char  *s
 )
 {
   static int  midline = 0;
@@ -98,7 +98,7 @@ eputsrc(				/* put string to stderr */
 
 void
 wputsrc(				/* warning output function */
-        char	*s
+        const char	*s
 )
 {
   int  lasterrno = errno;

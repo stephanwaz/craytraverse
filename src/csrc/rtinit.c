@@ -82,7 +82,7 @@ char	*flaglist[AMBLLEN+1];
 
 void
 eputsrt(				/* put string to stderr */
-        register char  *s
+        const char  *s
 )
 {
   static int  midline = 0;
@@ -102,7 +102,7 @@ eputsrt(				/* put string to stderr */
 
 void
 wputsrt(				/* warning output function */
-        char	*s
+        const char	*s
 )
 {
   int  lasterrno = errno;

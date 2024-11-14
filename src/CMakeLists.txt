@@ -22,8 +22,17 @@ set(Python3_FIND_VIRTUALENV FIRST)
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
 
+get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+foreach(dir ${dirs})
+    message(STATUS "dir='${dir}'")
+endforeach()
 
-include_directories(./csrc ./Radiance/src/common ./Radiance/src/util)
+include_directories(BEFORE Radiance/src/common Radiance/src/util csrc)
+
+get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+foreach(dir ${dirs})
+    message(STATUS "dir='${dir}'")
+endforeach()
 
 execute_process(COMMAND git log --pretty=format:'%h' -n 1
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Radiance
@@ -47,18 +56,18 @@ create_version_file("${VERSION_FILE}")
 
 # make lists of radiance source files for library creation
 set(rtrad_SOURCES
-        addobjnotify.c badarg.c biggerlib.c bmalloc.c bmpfile.c bsdf.c bsdf_m.c
-        bsdf_t.c byteswap.c caldefn.c calexpr.c calfunc.c calprnt.c ccolor.c ccyrgb.c
-        chanvalue.c clip.c color.c colrops.c cone.c cvtcmd.c depthcodec.c dircode.c disk2square.c
-        ealloc.c eputs.c erf.c error.c expandarg.c ezxml.c face.c falsecolor.c fdate.c fgetline.c
-        fgetval.c fgetword.c fixargv0.c fltdepth.c font.c fputword.c free_os.c fropen.c fvect.c
-        gethomedir.c getlibpath.c getpath.c header.c hilbert.c idmap.c image.c instance.c interp2d.c
-        invmat4.c jitteraperture.c lamps.c linregr.c loadbsdf.c loadvars.c lookup.c mat4.c mesh.c modobject.c
-        multisamp.c myhostname.c normcodec.c objset.c octree.c otypes.c paths.c plocate.c portio.c process.c
-        quit.c readfargs.c readmesh.c readobj.c readoct.c resolu.c rexpr.c savestr.c savqstr.c
-        sceneio.c spec_rgb.c tcos.c timegm.c tmap16bit.c tmapcolrs.c tmapluv.c tmaptiff.c tmesh.c
-        tonemap.c triangulate.c urand.c urind.c wordfile.c words.c wputs.c xf.c zeroes.c
-        )
+        addobjnotify.c badarg.c biggerlib.c bmalloc.c bmpfile.c bsdf.c bsdf_m.c bsdf_t.c byteswap.c caldefn.c calexpr.c
+        calfunc.c calprnt.c ccolor.c ccyrgb.c chanvalue.c clip.c color.c colrops.c cone.c cvtcmd.c data.c depthcodec.c
+        dircode.c disk2square.c dmessage.c ealloc.c eputs.c erf.c error.c expandarg.c ezxml.c face.c falsecolor.c
+        fdate.c fgetline.c fgetval.c fgetword.c fixargv0.c fltdepth.c font.c fputword.c free_os.c fropen.c fvect.c
+        gethomedir.c getlibpath.c getpath.c header.c hilbert.c idmap.c image.c instance.c interp2d.c invmat4.c
+        jitteraperture.c lamps.c linregr.c loadbsdf.c loadvars.c lookup.c mat4.c mesh.c modobject.c multisamp.c
+        myhostname.c normcodec.c objset.c octree.c otypes.c paths.c plocate.c portio.c process.c quit.c readfargs.c
+        readmesh.c readobj.c readoct.c resolu.c rexpr.c savestr.c savqstr.c sceneio.c spec_rgb.c tcos.c timegm.c
+        tmap16bit.c tmapcolrs.c tmapluv.c tmaptiff.c tmesh.c tonemap.c triangulate.c urand.c urind.c wordfile.c words.c
+        wputs.c xf.c zeroes.c
+)
+
 if(UNIX)
     find_library(LIB_M m DOC "Path to libm")
     if(NOT LIB_M)
@@ -75,14 +84,15 @@ endif()
 
 set(RADIANCE_COMMON paths.c platform.h random.h)
 set(RADIANCE_RT
-        ambcomp.c ambient.c ambio.c aniso.c ashikhmin.c data.c dielectric.c fprism.c
-        freeobjmem.c func.c glass.c initotypes.c m_alias.c m_brdf.c m_bsdf.c m_clip.c
-        m_direct.c m_mirror.c m_mist.c mx_data.c mx_func.c noise3.c normal.c o_cone.c o_face.c
-        o_instance.c o_mesh.c p_data.c p_func.c pmap.c pmapamb.c pmapbias.c pmapcontrib.c pmapdata.c
-        pmapdiag.c pmapio.c pmapmat.c pmapopt.c pmapparm.c pmaprand.c pmapray.c pmapsrc.c pmaptype.c
-        pmcontrib2.c pmutil.c preload.c raytrace.c renderopts.c source.c sphere.c srcobstr.c srcsamp.c
-        srcsupp.c t_data.c t_func.c text.c virtuals.c
+        ambcomp.c ambient.c ambio.c aniso.c ashikhmin.c dielectric.c fprism.c freeobjmem.c func.c glass.c initotypes.c
+        m_alias.c m_brdf.c m_bsdf.c m_clip.c m_direct.c m_mirror.c m_mist.c mx_data.c mx_func.c noise3.c normal.c
+        o_cone.c o_face.c o_instance.c o_mesh.c p_data.c p_func.c pmap.c pmapamb.c pmapbias.c pmapcontrib.c pmapdata.c
+        pmapdiag.c pmapio.c pmapmat.c pmapopt.c pmapparm.c pmaprand.c pmapray.c pmapsrc.c pmaptype.c pmcontrib2.c
+        pmutil.c preload.c raytrace.c renderopts.c source.c sphere.c srcobstr.c srcsamp.c srcsupp.c t_data.c t_func.c
+        text.c virtuals.c
         )
+
+set(CPPRAD abitmap.cpp abitmapio.cpp)
 
 if(WIN32)
     set(rayp_SOURCES raypwin.c)
@@ -101,6 +111,7 @@ set(RTFILES duphead.c persist.c pmapray.c)
 list(TRANSFORM rtrad_SOURCES PREPEND Radiance/src/common/)
 list(TRANSFORM RADIANCE_RT PREPEND Radiance/src/rt/)
 list(TRANSFORM RADIANCE_COMMON PREPEND Radiance/src/common/)
+list(TRANSFORM CPPRAD PREPEND Radiance/src/common/)
 list(TRANSFORM RAYCALLS PREPEND Radiance/src/rt/)
 list(TRANSFORM RCCALLFILES PREPEND Radiance/src/rt/)
 list(TRANSFORM RTFILES PREPEND Radiance/src/rt/)
@@ -110,8 +121,9 @@ list(TRANSFORM rtrad_SOURCES REPLACE Radiance/src/common/error.c csrc/error.c)
 #list(TRANSFORM rtrad_SOURCES REPLACE Radiance/src/common/otypes.c csrc/otypes.c)
 #list(TRANSFORM RAYCALLS REPLACE Radiance/src/rt/raycalls.c csrc/raycalls.c)
 # patch (to make sure calcontext is reset when calling initfunc)
-list(TRANSFORM RADIANCE_RT REPLACE Radiance/src/rt/func.c csrc/func.c)
+#list(TRANSFORM RADIANCE_RT REPLACE Radiance/src/rt/func.c csrc/func.c)
 
+add_library(cpprad STATIC ${CPPRAD})
 add_library(rtrad STATIC ${rtrad_SOURCES})
 add_library(radiance STATIC ${VERSION_FILE} ${RADIANCE_COMMON} ${RADIANCE_RT})
 add_library(raycalls STATIC ${RAYCALLS})
@@ -142,14 +154,19 @@ target_link_libraries(rcontrib_c PRIVATE rcontribcfiles rcraycalls radiance rtra
 target_include_directories(rtrace_c PRIVATE pybind11/include/pybind11)
 target_include_directories(rcontrib_c PRIVATE pybind11/include/pybind11)
 
+pybind11_add_module(pyrtrace MODULE rxtrace_py.cpp Radiance/src/rt/RtraceSimulManager.cpp PyRtraceSimulManager.cpp)
+target_link_libraries(pyrtrace PRIVATE raycalls radiance rtrad cpprad)
+
 if(SKBUILD)
-    set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "craytraverse/crenderer")
-    set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "craytraverse/crenderer")
+    set(Output_PATH "craytraverse/crenderer")
 else()
-    # move submodules to site-packages
-    set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${Python_SITELIB}/craytraverse/crenderer/")
-    set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${Python_SITELIB}/craytraverse/crenderer/")
+    set(Output_PATH "${Python_SITELIB}/craytraverse/crenderer/")
 endif()
+
+
+set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${Output_PATH})
+set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${Output_PATH})
+set_target_properties(pyrtrace PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${Output_PATH})
 
 # target for building 3 craytraverse modules
 ADD_CUSTOM_TARGET(python_all)
@@ -230,3 +247,12 @@ target_link_libraries(gendaylit rtrad ${LIB_M})
 
 add_executable(xform Radiance/src/gen/xform.c)
 target_link_libraries(xform rtrad)
+
+
+# c++ rendering executables
+add_executable(rxtrace Radiance/src/rt/rxtmain.cpp Radiance/src/rt/rxtrace.cpp Radiance/src/rt/RtraceSimulManager.cpp)
+target_link_libraries(rxtrace raycalls radiance rtrad cpprad)
+
+add_executable(rxcontrib Radiance/src/rt/rxcmain.cpp Radiance/src/rt/RcontribSimulManager.cpp
+        Radiance/src/rt/RtraceSimulManager.cpp Radiance/src/rt/RdataShareFile.cpp Radiance/src/rt/RdataShareMap.cpp)
+target_link_libraries(rxcontrib raycalls radiance rtrad cpprad)

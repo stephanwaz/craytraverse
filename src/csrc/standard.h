@@ -8,6 +8,7 @@
 
 #include  "copyright.h"
 //this works to patch all files with rterror except those in common (as it uses that version of standard.h)
+//unless standard.h is removed from common.
 #include  "error_mod.h"
 #include  "rtio.h"
 #include  "rtmisc.h"

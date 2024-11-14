@@ -67,7 +67,7 @@ initfunc(void)	/* initialize function evaluation */
 
 /* Set parameters for current evaluation */
 void
-set_eparams(char *prms)
+set_eparams(const char *prms)
 {
 	static char	*last_params = NULL;
 	char		vname[RMAXWORD];

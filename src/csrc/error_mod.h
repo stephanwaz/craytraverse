@@ -26,9 +26,8 @@ extern "C" {
 #endif
 
 #include <errno.h>
-extern void rterror(int etype, char *emsg);
+extern void rterror(int etype, const char *emsg);
 #define error rterror   /* avoid Linux library name collision */
-
 
 #ifdef __cplusplus
 }

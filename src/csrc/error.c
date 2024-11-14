@@ -14,62 +14,37 @@ static const char	RCSid[] = "$Id: error.c,v 2.11 2021/02/10 18:28:00 greg Exp $"
 
 #include  "rterror.h"
 
+
 extern char	*strerror();
 				/* global list of error actions */
 struct erract	erract[NERRS] = ERRACT_INIT;
 
+
 char  errmsg[2048];		/* global error message buffer */
-
-//duplicate definitions needed to also compile standalone binaries.
-//ugly but works for now.
-void
-error(etype, emsg)		/* report error, quit if necessary */
-int  etype;
-char  *emsg;
-{
-	register struct erract	*ep;
-
-	if ((etype < 0) | (etype >= NERRS))
-		return;
-	ep = erract + etype;
-	if (ep->pf != NULL) {
-		if (ep->pre[0]) (*ep->pf)(ep->pre);
-		if (emsg != NULL && emsg[0]) (*ep->pf)(emsg);
-		if (etype == SYSTEM && errno > 0) {
-			(*ep->pf)(": ");
-			(*ep->pf)(strerror(errno));
-		}
-		(*ep->pf)("\n");
-	}
-	if (!ep->ec)		/* non-fatal */
-		return;
-	if (ep->ec < 0)		/* dump core */
-		abort();
-	quit(ep->ec);		/* quit calls exit after cleanup */
-}
+int global_error_code = 0;
 
 void
-rterror(etype, emsg)		/* report error, quit if necessary */
-        int  etype;
-        char  *emsg;
+rterror(int etype, const char *emsg)	/* report error, do not quit, but set global_error_code to raise exception*/
 {
-  register struct erract	*ep;
+    struct erract	*ep;
 
-  if ((etype < 0) | (etype >= NERRS))
-    return;
-  ep = erract + etype;
-  if (ep->pf != NULL) {
-    if (ep->pre[0]) (*ep->pf)(ep->pre);
-    if (emsg != NULL && emsg[0]) (*ep->pf)(emsg);
-    if (etype == SYSTEM && errno > 0) {
-      (*ep->pf)(": ");
-      (*ep->pf)(strerror(errno));
+    if ((etype < 0) | (etype >= NERRS))
+        return;
+    ep = erract + etype;
+    if (ep->pf != NULL) {
+        if (ep->pre[0]) (*ep->pf)(ep->pre);
+        if (emsg != NULL && emsg[0]) (*ep->pf)(emsg);
+        if (etype == SYSTEM && errno > 0) {
+            (*ep->pf)(": ");
+            (*ep->pf)(strerror(errno));
+        }
+        (*ep->pf)("\n");
     }
-    (*ep->pf)("\n");
-  }
-  if (!ep->ec)		/* non-fatal */
-    return;
-  if (ep->ec < 0)		/* dump core */
-    abort();
-  quit(ep->ec);		/* quit calls exit after cleanup */
+    global_error_code = ep->ec;
+    if (!ep->ec)		/* non-fatal */
+        return;
+    if (ep->ec < 0)		/* dump core */
+        abort();
+    if (ep->ec > 1) /* leads to bad place */
+        quit(ep->ec);
 }

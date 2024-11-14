@@ -74,7 +74,7 @@ extern int  vresolu;			/* vertical resolution */
 long putcount;
 RREAL *output_values;
 
-int  castonly = 0;			/* only doing ray-casting? */
+extern int  castonly;			/* only doing ray-casting? */
 
 #ifndef  MAXTSET
 #define	 MAXTSET	8191		/* maximum number in trace set */
