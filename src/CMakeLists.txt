@@ -3,7 +3,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 project(craytraverse)
 
-
 find_package(X11)
 if(X11_FOUND)
     if(APPLE)
@@ -19,8 +18,12 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 endif()
 
 set(Python3_FIND_VIRTUALENV FIRST)
-set(PYBIND11_FINDPYTHON ON)
-find_package(pybind11 CONFIG REQUIRED)
+find_package(Python 3.9 COMPONENTS Interpreter Development.Module REQUIRED)
+# Detect the installed nanobind package and import it into CMake
+execute_process(
+        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
+find_package(nanobind CONFIG REQUIRED)
 
 get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
 foreach(dir ${dirs})
@@ -127,34 +130,27 @@ add_library(cpprad STATIC ${CPPRAD})
 add_library(rtrad STATIC ${rtrad_SOURCES})
 add_library(radiance STATIC ${VERSION_FILE} ${RADIANCE_COMMON} ${RADIANCE_RT})
 add_library(raycalls STATIC ${RAYCALLS})
+
 add_library(rcraycalls STATIC csrc/rcraycalls.c ${RCCALLFILES})
-add_library(rtracecfiles STATIC csrc/rtinit.c csrc/rtraceparts.c ${RTFILES} ${VERSION_FILE})
 add_library(rcontribcfiles STATIC csrc/rcinit.c csrc/rcontribparts.c csrc/rc3_mod.c csrc/rc2_mod.c ${VERSION_FILE})
+
 target_include_directories(rtrad PRIVATE Radiance/src/rt)
 target_include_directories(radiance PRIVATE Radiance/src/rt)
 target_include_directories(raycalls PRIVATE Radiance/src/rt)
+
 target_include_directories(rcraycalls PRIVATE Radiance/src/rt)
-target_include_directories(rtracecfiles PRIVATE Radiance/src/rt)
 target_include_directories(rcontribcfiles PRIVATE Radiance/src/rt)
 
 set_property(TARGET rtrad PROPERTY C_STANDARD 90)
 set_property(TARGET radiance PROPERTY C_STANDARD 90)
 set_property(TARGET raycalls PROPERTY C_STANDARD 90)
 set_property(TARGET rcraycalls PROPERTY C_STANDARD 90)
-set_property(TARGET rtracecfiles PROPERTY C_STANDARD 99)
 set_property(TARGET rcontribcfiles PROPERTY C_STANDARD 99)
 
 target_link_libraries(rtrad ${LIB_M})
 
 # rtrace and rcontrib are built separately to avoid namespace conflicts
-pybind11_add_module(rtrace_c MODULE render.cpp rtrace.cpp)
-pybind11_add_module(rcontrib_c MODULE render.cpp rcontrib.cpp)
-target_link_libraries(rtrace_c PRIVATE rtracecfiles raycalls radiance rtrad)
-target_link_libraries(rcontrib_c PRIVATE rcontribcfiles rcraycalls radiance rtrad)
-target_include_directories(rtrace_c PRIVATE pybind11/include/pybind11)
-target_include_directories(rcontrib_c PRIVATE pybind11/include/pybind11)
-
-pybind11_add_module(pyrtrace MODULE Radiance/src/rt/rxtrace.cpp rxtrace_py.cpp Radiance/src/rt/RtraceSimulManager.cpp PyRtraceSimulManager.cpp)
+nanobind_add_module(pyrtrace MODULE Radiance/src/rt/rxtrace.cpp rxtrace_py.cpp Radiance/src/rt/RtraceSimulManager.cpp PyRtraceSimulManager.cpp)
 target_link_libraries(pyrtrace PRIVATE raycalls radiance rtrad cpprad)
 
 if(SKBUILD)
@@ -163,20 +159,11 @@ else()
     set(Output_PATH "${Python_SITELIB}/craytraverse/crenderer/")
 endif()
 
-
-set_target_properties(rtrace_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${Output_PATH})
-set_target_properties(rcontrib_c PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${Output_PATH})
 set_target_properties(pyrtrace PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${Output_PATH})
 
 # target for building 3 craytraverse modules
 ADD_CUSTOM_TARGET(python_all)
-ADD_DEPENDENCIES(python_all rtrace_c rcontrib_c)
-
-#add_executable(raytcontrib mainrc.cpp render.cpp rcontrib.cpp)
-#target_link_libraries(raytcontrib PRIVATE pybind11::embed rcontribcfiles rcraycalls radiance rtrad)
-#
-#add_executable(rayttrace mainrt.cpp render.cpp rtrace.cpp)
-#target_link_libraries(rayttrace PRIVATE pybind11::embed rtracecfiles raycalls radiance rtrad)
+ADD_DEPENDENCIES(python_all pyrtrace)
 
 # build required radiance executables
 
@@ -247,7 +234,6 @@ target_link_libraries(gendaylit rtrad ${LIB_M})
 
 add_executable(xform Radiance/src/gen/xform.c)
 target_link_libraries(xform rtrad)
-
 
 # c++ rendering executables
 add_executable(rxtrace Radiance/src/rt/rxtmain.cpp Radiance/src/rt/rxtrace.cpp Radiance/src/rt/RtraceSimulManager.cpp)

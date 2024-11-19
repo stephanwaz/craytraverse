@@ -5,12 +5,7 @@
 #include "PyRtraceSimulManager.h"
 #include <iostream>
 
-char const * errcodes[4] = {"warning","fatal","system", "internal"};
-
 extern int global_error_code;
-
-
-
 
 // this might have stability problems, so far if it works for "fatal" (setrtoutput with bad value)
 // but not "system" (try to load an octree that does not exist) errors,
@@ -18,18 +13,15 @@ extern int global_error_code;
 // gets into nasty trouble
 void check_for_errors() {
     if (global_error_code != 0){
-        std::string message = std::string(errcodes[global_error_code]) + " - " + errmsg;
         global_error_code = 0; //in case we decide to try and recover
-        throw py::value_error(message);
+        throw nb::value_error(errmsg);
     }
 }
-
-
 
 bool PyRtraceSimulManager::LoadOctree(const char *octn) {
     bool loaded = renderer->LoadOctree(octn);
     check_for_errors();
-    myRTmanager.SetCookedCall(printvals);
+    renderer->SetCookedCall(printvals); //so Ready will return True
     return loaded;
 }
 
@@ -65,22 +57,29 @@ int PyRtraceSimulManager::get_render_settings() {
     return castonly;
 }
 
-py::array_t<double> PyRtraceSimulManager::trace(INRAYTYPE &vecs, int nproc) {
+OUTTYPE PyRtraceSimulManager::trace(INRAYTYPE &vecs, int nproc) {
     if (!Ready())
-        throw py::value_error("Simulation Manager is not Ready!");
+        throw nb::value_error("Simulation Manager is not Ready!");
     if(nproc >= 0)
         proc = nproc;
-    myRTmanager.SetThreadCount(proc);
-    int rows = vecs.shape(0);
-    py::buffer_info vbuff = vecs.request();
-    auto *vptr = (double *) vbuff.ptr;
+    renderer->SetThreadCount(proc);
+    u_long rows = vecs.shape(0);
+    auto vptr = vecs.data();
 
-    output_values = (RREAL *)malloc(sizeof(RREAL) * rows * rvc);
+    // Allocate a memory region an initialize it
+    RREAL *outdata = new RREAL[rows * rvc];
+
+    // Delete 'outdata' when the 'owner' capsule expires
+    nb::capsule owner(outdata, [](void *p) noexcept {
+        delete[] (float *) p;
+    });
+    output_values = outdata; //point to our output data
     rtrace_buffer(vptr, nproc, rows);
-    return py::array_t<double>({rows, rvc}, output_values);
+    output_values = nullptr;
+    return OUTTYPE(outdata,{ rows, rvc }, owner);
 }
 
-void PyRtraceSimulManager::set_args(const py::list& arglist) {
+void PyRtraceSimulManager::set_args(const nb::list& arglist) {
     int argc = (int)arglist.size();
     char **argv = (char**)malloc(argc * sizeof(char*));
 
@@ -88,41 +87,39 @@ void PyRtraceSimulManager::set_args(const py::list& arglist) {
         argv[i] = (char*)PyUnicode_AsUTF8(arglist[i].ptr());
 
     rvc = setrtargs(argc, argv);
+    if (obj_count() > 0)
+        renderer->SetCookedCall(printvals);
     free(argv);
+    proc = NThreads();
     check_for_errors();
-    SetThreadCount(proc);
 }
 
-PyRtraceSimulManager::PyRtraceSimulManager(const char *octn, const py::list &arglist, int nproc) {
+PyRtraceSimulManager::PyRtraceSimulManager(const nb::list &arglist) {
     //every python instance points back to the same instance
     renderer = &myRTmanager;
     rvc = 0;
-    proc = nproc;
-    if (octn != nullptr){
-        std::cerr << "Attempting to load octree " << octn << std::endl;
-        LoadOctree(octn);
-    }
-    if (!arglist.is(py::none())) {
-        std::cerr << "setting arguments " << octn << std::endl;
+    proc = NThreads();
+    if (len(arglist) > 0) {
+        std::cerr << "setting arguments " << std::endl;
         set_args(arglist);
     }
 }
 
 
-using namespace pybind11::literals;
+using namespace nb::literals;
 
-PYBIND11_MODULE(pyrtrace, m){
-py::class_<PyRtraceSimulManager>(m, "pyRtrace", py::module_local())
-    .def_readonly("rvc", &PyRtraceSimulManager::rvc, R"pbdoc(the expected return value count per ray)pbdoc")
-    .def(py::init<const char *, const py::list, int>(), "octn"_a= nullptr, "arglist"_a=py::none(), "nproc"_a=0)
+NB_MODULE(pyrtrace, m){
+nb::class_<PyRtraceSimulManager>(m, "pyRtrace")
+    .def_ro("rvc", &PyRtraceSimulManager::rvc, "the expected return value count per ray")
+    .def(nb::init<const nb::list>(), "arglist"_a=nb::list())
     .def("LoadOctree", &PyRtraceSimulManager::LoadOctree, "octn"_a)
     .def("Ready", &PyRtraceSimulManager::Ready)
     .def("Cleanup", &PyRtraceSimulManager::Cleanup, "everything"_a = false)
-    .def("SetThreadCount", &PyRtraceSimulManager::SetThreadCount, "nproc"_a = 0, R"pbdoc(Set process count for radiance.
+    .def("SetThreadCount", &PyRtraceSimulManager::SetThreadCount, "nproc"_a = 0, R"nbdoc(Set process count for radiance.
 Notes
 -----
  - By default will use sysconf(_SC_NPROCESSORS_ONLN)).
- - has no effect until after LoadOctree.)pbdoc")
+ - has no effect until after LoadOctree.)nbdoc")
     .def("NThreads", &PyRtraceSimulManager::NThreads)
     .def("obj_count", &PyRtraceSimulManager::obj_count)
     .def("set_output", &PyRtraceSimulManager::set_output)

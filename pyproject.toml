@@ -6,7 +6,7 @@ build-backend = "scikit_build_core.build"
 name = "craytraverse"
 version = "0.1.6"
 dependencies = [
-    "pybind11",
+    "nanobind",
     "numpy >= 2.0"
 
 ]

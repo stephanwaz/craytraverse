@@ -6,10 +6,10 @@
 #define CRAYTRAVERSE_PYRTRACESIMULMANAGER_H
 
 #include "Radiance/src/rt/RtraceSimulManager.h"
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 //declarations needed by rxtrace that are defined in rxtmain (which is not part of this target)
 double  (*sens_curve)(const SCOLOR scol) = nullptr;	/* spectral conversion for 1-channel */
@@ -33,7 +33,8 @@ extern int setrtoutput(const char *outvals);	/* set output values */
 void rtrace_buffer(const double *vptr, int nproc, int raycount);
 int setrtargs(int  argc, char  *argv[]);
 
-typedef py::array_t<double, py::array::c_style> INRAYTYPE;
+typedef nb::ndarray<double, nb::c_contig, nb::shape<-1, 6>, nb::ro> INRAYTYPE;
+typedef nb::ndarray<nb::numpy, double, nb::ndim<2>> OUTTYPE;
 
 static void check_for_errors();
 
@@ -43,8 +44,8 @@ private:
     int proc;
 
 public:
-    int rvc;
-    explicit PyRtraceSimulManager(const char *octn = nullptr, const py::list& arglist = py::none(), int nproc = 0);
+    u_long rvc;
+    explicit PyRtraceSimulManager(const nb::list& arglist = nb::list());
     ~PyRtraceSimulManager() = default;
 
     //these all directly implement RtraceSimulManager methods
@@ -55,12 +56,12 @@ public:
     int NThreads();
 
     //ADDITIONAL METHODS
-    void set_args(const py::list& arglist);
+    void set_args(const nb::list& arglist);
     int set_output(const char *outvals);
     int obj_count(); // return number of objects loaded
-    int get_render_settings();
+    int get_render_settings(); //TODO, might be a helpful check
 
-    py::array_t<double> trace(INRAYTYPE &vecs, int nproc = -1);
+    OUTTYPE trace(INRAYTYPE &vecs, int nproc = -1);
 };
 
 

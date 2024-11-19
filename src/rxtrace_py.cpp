@@ -2,9 +2,10 @@
 // Created by Stephen Wasilewski on 13.11.2024.
 //
 #include  "Radiance/src/rt/RtraceSimulManager.h"
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 #include <iostream>
 
+namespace nb = nanobind;
 
 // global simulation manager
 extern RtraceSimulManager	myRTmanager;
@@ -31,7 +32,6 @@ void putn(RREAL *v, int n){ /* output to buffer */
     }
     putcount += n;
 }
-
 
 //modified from rtrace() in rxtrace.cpp
 void
@@ -67,17 +67,17 @@ rtrace_buffer(				/* trace rays from buffer */
         ivbuf[1][2] = vptr[ti+5];
         ti += 6;
         if (myRTmanager.EnqueueBundle(ivbuf, n) < n)
-            throw pybind11::value_error("ray queuing failure");
+            throw nb::value_error("ray queuing failure");
         bool	atZero = IsZeroVec(ivbuf[2*n-1]);
         if (pending & (atZero)) {
             if (myRTmanager.FlushQueue() <= 0)
-                throw pybind11::value_error("ray flush error");
+                throw nb::value_error("ray flush error");
             pending = false;
         } else
             pending |= !atZero;
     }
     if (myRTmanager.FlushQueue() < 0)
-        throw pybind11::value_error("final flush error");
+        throw nb::value_error("final flush error");
     free(ivbuf);
 }
 
@@ -88,14 +88,14 @@ setrtargs(int  argc, char  *argv[])
 {
 #define	 check(ol,al)		if (argv[i][ol] || \
 				badarg(argc-i-1,argv+i+1,al)) \
-				throw pybind11::value_error("command line error at: " + std::string(argv[i]));
+				throw nb::value_error(("command line error at: " + std::string(argv[i])).c_str());
 #define	 check_bool(olen,var)		switch (argv[i][olen]) { \
 				case '\0': var = !var; break; \
 				case 'y': case 'Y': case 't': case 'T': \
 				case '+': case '1': var = 1; break; \
 				case 'n': case 'N': case 'f': case 'F': \
 				case '-': case '0': var = 0; break; \
-				default: throw pybind11::value_error("command line error at: " + std::string(argv[i])); }
+				default: throw nb::value_error(("command line error at: " + std::string(argv[i])).c_str()); }
     int  rval;
     int  i;
     int nproc = 0;
@@ -107,7 +107,7 @@ setrtargs(int  argc, char  *argv[])
         while ((rval = expandarg(&argc, &argv, i)) > 0)
             ;
         if (rval < 0) {
-            throw pybind11::value_error("cannot expand: " + std::string(argv[i]));
+            throw nb::value_error(("cannot expand: " + std::string(argv[i])).c_str());
         }
         if (argv[i] == NULL || argv[i][0] != '-')
             break;			/* break from options */
@@ -143,7 +143,7 @@ setrtargs(int  argc, char  *argv[])
                 break;
             case 'l':				/* limit distance */
                 if (argv[i][2] != 'd')
-                    throw pybind11::value_error("command line error at: " + std::string(argv[i]));
+                    throw nb::value_error(("command line error at: " + std::string(argv[i])).c_str());
                 rval = myRTmanager.rtFlags & RTlimDist;
                 check_bool(3,rval);
                 if (rval) myRTmanager.rtFlags |= RTlimDist;
@@ -168,7 +168,7 @@ setrtargs(int  argc, char  *argv[])
 #if MAXCSAMP>3
             case 'c':				/* output spectral results */
                 if (argv[i][2] != 'o')
-                    throw pybind11::value_error("command line error at: " + std::string(argv[i]));
+                    throw nb::value_error(("command line error at: " + std::string(argv[i])).c_str());
                 rval = (out_prims == NULL) & (sens_curve == NULL);
                 check_bool(3,rval);
                 if (rval) {
@@ -179,16 +179,16 @@ setrtargs(int  argc, char  *argv[])
                 break;
 #endif
             default:
-                throw pybind11::value_error("command line error at: " + std::string(argv[i]));
+                throw nb::value_error(("command line error at: " + std::string(argv[i])).c_str());
         }
     }
     /* set/check spectral sampling */
     rval = setspectrsamp(CNDX, WLPART);
     if (rval < 0)
-        throw pybind11::value_error("unsupported spectral sampling");
+        throw nb::value_error("unsupported spectral sampling");
     if (out_prims != NULL) {
         if (!rval)
-            throw pybind11::value_error("spectral range incompatible with color output");
+            throw nb::value_error("spectral range incompatible with color output");
     } else if (NCSAMP == 3)
         out_prims = stdprims;	/* 3 samples do not a spectrum make */
     /* set up signal handling */
@@ -209,7 +209,7 @@ setrtargs(int  argc, char  *argv[])
 #endif
     if (i == argc - 1)
         if (!myRTmanager.LoadOctree(argv[i]))
-            throw pybind11::value_error("error loading octree: " + std::string(argv[i]));
+            throw nb::value_error(("error loading octree: " + std::string(argv[i])).c_str());
     if (nproc != 0)
         myRTmanager.SetThreadCount(nproc);
 #undef	check
