@@ -154,7 +154,7 @@ target_link_libraries(rcontrib_c PRIVATE rcontribcfiles rcraycalls radiance rtra
 target_include_directories(rtrace_c PRIVATE pybind11/include/pybind11)
 target_include_directories(rcontrib_c PRIVATE pybind11/include/pybind11)
 
-pybind11_add_module(pyrtrace MODULE rxtrace_py.cpp Radiance/src/rt/RtraceSimulManager.cpp PyRtraceSimulManager.cpp)
+pybind11_add_module(pyrtrace MODULE Radiance/src/rt/rxtrace.cpp rxtrace_py.cpp Radiance/src/rt/RtraceSimulManager.cpp PyRtraceSimulManager.cpp)
 target_link_libraries(pyrtrace PRIVATE raycalls radiance rtrad cpprad)
 
 if(SKBUILD)

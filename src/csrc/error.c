@@ -48,3 +48,28 @@ rterror(int etype, const char *emsg)	/* report error, do not quit, but set globa
     if (ep->ec > 1) /* leads to bad place */
         quit(ep->ec);
 }
+
+void
+error(int etype, const char *emsg)
+{
+    struct erract	*ep;
+
+    if ((etype < 0) | (etype >= NERRS))
+        return;
+    ep = erract + etype;
+    if (ep->pf != NULL) {
+        if (ep->pre[0]) (*ep->pf)(ep->pre);
+        if (emsg != NULL && emsg[0]) (*ep->pf)(emsg);
+        if (etype == SYSTEM && errno > 0) {
+            (*ep->pf)(": ");
+            (*ep->pf)(strerror(errno));
+        }
+        (*ep->pf)("\n");
+    }
+    global_error_code = ep->ec;
+    if (!ep->ec)		/* non-fatal */
+        return;
+    if (ep->ec < 0)		/* dump core */
+        abort();
+    quit(ep->ec);
+}
