@@ -18,18 +18,27 @@ void check_for_errors() {
     }
 }
 
-bool PyRtraceSimulManager::LoadOctree(const char *octn) {
-    bool loaded = renderer->LoadOctree(octn);
+int PyRtraceSimulManager::LoadOctree(const char *octn) {
+    renderer->LoadOctree(octn);
     check_for_errors();
-    renderer->SetCookedCall(printvals); //so Ready will return True
-    return loaded;
+    renderer->SetCookedCall(printvals); //now Ready should return True
+    return nobjects;
 }
 
 bool PyRtraceSimulManager::Ready() {
     return renderer->Ready() && rvc > 0;
 }
 
+void PyRtraceSimulManager::reset_settings() {
+    ray_restore(nullptr);
+    sens_curve = nullptr;
+    out_scalefactor = 1;
+    out_prims = stdprims;
+    renderer->rtFlags = 0;
+}
+
 int PyRtraceSimulManager::Cleanup(bool everything) {
+    reset_settings();
     return renderer->Cleanup(everything);
 }
 
@@ -42,19 +51,11 @@ int PyRtraceSimulManager::NThreads() {
     return renderer->NThreads();
 }
 
-int PyRtraceSimulManager::set_output(const char *outvals) {
+u_long PyRtraceSimulManager::set_output(const char *outvals) {
     rvc = setrtoutput(outvals);
     check_for_errors();
     SetThreadCount(proc);
     return rvc;
-}
-
-int PyRtraceSimulManager::obj_count() {
-    return nobjects;
-}
-
-int PyRtraceSimulManager::get_render_settings() {
-    return castonly;
 }
 
 OUTTYPE PyRtraceSimulManager::trace(INRAYTYPE &vecs, int nproc) {
@@ -67,7 +68,7 @@ OUTTYPE PyRtraceSimulManager::trace(INRAYTYPE &vecs, int nproc) {
     auto vptr = vecs.data();
 
     // Allocate a memory region an initialize it
-    RREAL *outdata = new RREAL[rows * rvc];
+    auto *outdata = new RREAL[rows * rvc];
 
     // Delete 'outdata' when the 'owner' capsule expires
     nb::capsule owner(outdata, [](void *p) noexcept {
@@ -79,16 +80,18 @@ OUTTYPE PyRtraceSimulManager::trace(INRAYTYPE &vecs, int nproc) {
     return OUTTYPE(outdata,{ rows, rvc }, owner);
 }
 
-void PyRtraceSimulManager::set_args(const nb::list& arglist) {
+void PyRtraceSimulManager::set_args(const nb::list& arglist, bool reset) {
     int argc = (int)arglist.size();
     char **argv = (char**)malloc(argc * sizeof(char*));
 
     for (int i = 0; i < argc; ++i)
         argv[i] = (char*)PyUnicode_AsUTF8(arglist[i].ptr());
-
+    if (reset) {
+        reset_settings();
+    }
     rvc = setrtargs(argc, argv);
-    if (obj_count() > 0)
-        renderer->SetCookedCall(printvals);
+    if (nobjects > 0)
+        renderer->SetCookedCall(printvals); //now Ready will return True in case octree is set this way
     free(argv);
     proc = NThreads();
     check_for_errors();
@@ -100,7 +103,6 @@ PyRtraceSimulManager::PyRtraceSimulManager(const nb::list &arglist) {
     rvc = 0;
     proc = NThreads();
     if (len(arglist) > 0) {
-        std::cerr << "setting arguments " << std::endl;
         set_args(arglist);
     }
 }
@@ -111,7 +113,9 @@ using namespace nb::literals;
 NB_MODULE(pyrtrace, m){
 nb::class_<PyRtraceSimulManager>(m, "pyRtrace")
     .def_ro("rvc", &PyRtraceSimulManager::rvc, "the expected return value count per ray")
-    .def(nb::init<const nb::list>(), "arglist"_a=nb::list())
+        .def_ro("proc", &PyRtraceSimulManager::proc, "the number of processors for rendering")
+    .def(nb::init<const nb::list>(), "arglist"_a=nb::list(), "arglist should be a list of strings "
+                                         "matching command line arguments. use shlex.split()")
     .def("LoadOctree", &PyRtraceSimulManager::LoadOctree, "octn"_a)
     .def("Ready", &PyRtraceSimulManager::Ready)
     .def("Cleanup", &PyRtraceSimulManager::Cleanup, "everything"_a = false)
@@ -120,11 +124,8 @@ Notes
 -----
  - By default will use sysconf(_SC_NPROCESSORS_ONLN)).
  - has no effect until after LoadOctree.)nbdoc")
-    .def("NThreads", &PyRtraceSimulManager::NThreads)
-    .def("obj_count", &PyRtraceSimulManager::obj_count)
-    .def("set_output", &PyRtraceSimulManager::set_output)
-    .def("set_args", &PyRtraceSimulManager::set_args, "arglist"_a)
-    .def("get_render_settings", &PyRtraceSimulManager::get_render_settings)
+    .def("set_output", &PyRtraceSimulManager::set_output, "outvals"_a = "ov")
+    .def("set_args", &PyRtraceSimulManager::set_args, "arglist"_a, "reset"_a = false)
     .def("__call__", &PyRtraceSimulManager::trace, "vecs"_a, "nproc"_a = -1);
 }
 

@@ -11,7 +11,6 @@
 __author__ = """Stephen Wasilewski"""
 __email__ = 'stephanwaz@gmail.com'
 __version__ = '0.1.6'
-__all__ = ['crenderer']
 
 
 def set_raypath(basefile=__file__, subd="cal"):

@@ -8,7 +8,6 @@
 
 """c++ renderer objects"""
 
-__all__ = ['cRcontrib', 'cRtrace']
+__all__ = ['pyRtrace']
 
-from craytraverse.crenderer.rcontrib_c import cRcontrib
-from craytraverse.crenderer.rtrace_c import cRtrace
+from craytraverse.crenderer.pyrtrace import pyRtrace

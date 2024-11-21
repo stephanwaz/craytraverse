@@ -132,20 +132,20 @@ add_library(radiance STATIC ${VERSION_FILE} ${RADIANCE_COMMON} ${RADIANCE_RT})
 add_library(raycalls STATIC ${RAYCALLS})
 
 add_library(rcraycalls STATIC csrc/rcraycalls.c ${RCCALLFILES})
-add_library(rcontribcfiles STATIC csrc/rcinit.c csrc/rcontribparts.c csrc/rc3_mod.c csrc/rc2_mod.c ${VERSION_FILE})
+#add_library(rcontribcfiles STATIC csrc/rcinit.c csrc/rcontribparts.c csrc/rc3_mod.c csrc/rc2_mod.c ${VERSION_FILE})
 
 target_include_directories(rtrad PRIVATE Radiance/src/rt)
 target_include_directories(radiance PRIVATE Radiance/src/rt)
 target_include_directories(raycalls PRIVATE Radiance/src/rt)
 
 target_include_directories(rcraycalls PRIVATE Radiance/src/rt)
-target_include_directories(rcontribcfiles PRIVATE Radiance/src/rt)
+#target_include_directories(rcontribcfiles PRIVATE Radiance/src/rt)
 
 set_property(TARGET rtrad PROPERTY C_STANDARD 90)
 set_property(TARGET radiance PROPERTY C_STANDARD 90)
 set_property(TARGET raycalls PROPERTY C_STANDARD 90)
 set_property(TARGET rcraycalls PROPERTY C_STANDARD 90)
-set_property(TARGET rcontribcfiles PROPERTY C_STANDARD 99)
+#set_property(TARGET rcontribcfiles PROPERTY C_STANDARD 99)
 
 target_link_libraries(rtrad ${LIB_M})
 
@@ -161,7 +161,7 @@ endif()
 
 set_target_properties(pyrtrace PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${Output_PATH})
 
-# target for building 3 craytraverse modules
+# target for building craytraverse modules
 ADD_CUSTOM_TARGET(python_all)
 ADD_DEPENDENCIES(python_all pyrtrace)
 

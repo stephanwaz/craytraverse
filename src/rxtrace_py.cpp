@@ -10,9 +10,10 @@ namespace nb = nanobind;
 // global simulation manager
 extern RtraceSimulManager	myRTmanager;
 
-extern double  (*sens_curve)(SCOLOR scol);	/* spectral conversion for 1-channel */
+extern double  (*sens_curve)(const SCOLOR scol);	/* spectral conversion for 1-channel */
 extern double  out_scalefactor;		/* output calibration scale factor */
 extern RGBPRIMP  out_prims;		/* output color primitives (NULL if spectral) */
+static RGBPRIMS  our_prims;		/* private output color primitives */
 extern int setrtoutput(const char *outvals);
 
 typedef void putf_t(RREAL *v, int n);
@@ -38,7 +39,7 @@ void
 rtrace_buffer(				/* trace rays from buffer */
         const double *vptr,
         int nproc,
-        int raycount
+        u_long raycount
 )
 {
     putcount = 0;
@@ -100,7 +101,8 @@ setrtargs(int  argc, char  *argv[])
     int  i;
     int nproc = 0;
     int rvc = 0;
-
+    char *output_spec = new char[32];
+    strlcpy(output_spec, "v", sizeof(output_spec));
     /* option city */
     for (i = 0; i < argc; i++) {
         /* expand arguments */
@@ -158,13 +160,69 @@ setrtargs(int  argc, char  *argv[])
             case 'f':				/* format i/o */
                 std::cerr << "Warning: -f argument ignored" << std::endl;
             case 'o':				/* output */
-                rvc = setrtoutput(argv[i]+2);
+                // don't set this until the end because -p and -c options change return value count
+                strlcpy(output_spec, argv[i] + 2, sizeof(output_spec));
                 break;
             case 'h':				/* header output */
                 std::cerr << "Warning: -f argument ignored" << std::endl;
                 break;
             case 't':				/* trace */
                 std::cerr << "Warning: -t argument ignored" << std::endl;
+            case 'p':				/* value output */
+                switch (argv[i][2]) {
+                    case 'R':			/* standard RGB output */
+                        if (strcmp(argv[i]+2, "RGB"))
+                            throw nb::value_error("did you mean -pRGB?");
+                        out_prims = stdprims;
+                        out_scalefactor = 1;
+                        sens_curve = NULL;
+                        break;
+                    case 'X':			/* XYZ output */
+                        if (strcmp(argv[i]+2, "XYZ"))
+                            throw nb::value_error("did you mean -pXYZ?");
+                        out_prims = xyzprims;
+                        out_scalefactor = WHTEFFICACY;
+                        sens_curve = NULL;
+                        break;
+                    case 'c': {
+                        int	j;
+                        check(3,"ffffffff");
+                        rval = 0;
+                        for (j = 0; j < 8; j++) {
+                            our_prims[0][j] = atof(argv[++i]);
+                            rval |= fabs(our_prims[0][j]-stdprims[0][j]) > .001;
+                        }
+                        if (rval) {
+                            if (!colorprimsOK(our_prims))
+                                error(USER, "illegal primary chromaticities");
+                            out_prims = our_prims;
+                        } else
+                            out_prims = stdprims;
+                        out_scalefactor = 1;
+                        sens_curve = NULL;
+                    } break;
+                    case 'Y':			/* photopic response */
+                        if (argv[i][3])
+                            throw nb::value_error("did you mean -pY?");
+                        sens_curve = scolor_photopic;
+                        out_scalefactor = WHTEFFICACY;
+                        break;
+                    case 'S':			/* scotopic response */
+                        if (argv[i][3])
+                            throw nb::value_error("did you mean -pS?");
+                        sens_curve = scolor_scotopic;
+                        out_scalefactor = WHTSCOTOPIC;
+                        break;
+                    case 'M':			/* melanopic response */
+                        if (argv[i][3])
+                            throw nb::value_error("did you mean -pM?");
+                        sens_curve = scolor_melanopic;
+                        out_scalefactor = WHTMELANOPIC;
+                        break;
+                    default:
+                        throw nb::value_error(("command line error at: " + std::string(argv[i])).c_str());
+                }
+                break;
 #if MAXCSAMP>3
             case 'c':				/* output spectral results */
                 if (argv[i][2] != 'o')
@@ -207,6 +265,10 @@ setrtargs(int  argc, char  *argv[])
     sigdie(SIGXCPU, "CPU limit exceeded");
     sigdie(SIGXFSZ, "File size exceeded");
 #endif
+    if (strlen(output_spec) > 0) {
+        rvc = setrtoutput(output_spec);
+    }
+    delete[] output_spec;
     if (i == argc - 1)
         if (!myRTmanager.LoadOctree(argv[i]))
             throw nb::value_error(("error loading octree: " + std::string(argv[i])).c_str());
