@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 project(craytraverse)
 
-add_compile_definitions(VERSION_INFO="0.1.6")
+add_compile_definitions(VERSION_INFO="0.1.7")
 
 add_subdirectory(src)
 set(CMAKE_VERBOSE_MAKEFILE on)
