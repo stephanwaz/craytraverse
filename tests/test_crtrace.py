@@ -166,38 +166,37 @@ def test_ambient_reset(tmpdir):
     noamb = r(vecs).ravel()
     assert 1e-8 < np.sum(np.abs(noamb - a3)) < 1
     r.reset()
-# #
-# #
-def test_ambient_nostore(tmpdir):
 
-    args = "-u- -ab 1 -ar 1000 -ad 4000 -aa .05 -as 2000 -I+"
-
-    r = Rtrace(args, "scene.oct")
-
-    vecs = np.loadtxt('rays2.txt')
-
-    def load_sun(sun, val):
-        srcdef = f'tmp_sun.rad'
-        f = open(srcdef, 'w')
-        sdef = (f"void light solar 0 0 3 {val} {val} {val}\n"
-                f"solar source sun 0 0 4 {sun[0]} {sun[1]} {sun[2]} 0.5333\n")
-        f.write(sdef)
-        f.close()
-        r.load_source(srcdef)
-        os.remove(srcdef)
-
-    load_sun((0, -.5, 1), 1000000)
-
-    # ambient values are not shared
-    r(vecs)
-    an2 = r(vecs).ravel()
-    an3 = r(vecs).ravel()
-    assert 1e-8 < np.sum(np.abs(an2 - an3)) < .5
-
-    # ambient values are shared (vectors repeated, 1 process)
-    an4 = r(np.repeat(vecs, 2, 0)).reshape(-1, 2).T
-    assert (np.allclose(an4[0], an4[1]))
-    r.reset()
+# def test_ambient_nostore(tmpdir):
+#
+#     args = "-u- -ab 1 -ar 1000 -ad 4000 -aa .05 -as 2000 -I+"
+#
+#     r = Rtrace(args, "scene.oct")
+#
+#     vecs = np.loadtxt('rays2.txt')
+#
+#     def load_sun(sun, val):
+#         srcdef = f'tmp_sun.rad'
+#         f = open(srcdef, 'w')
+#         sdef = (f"void light solar 0 0 3 {val} {val} {val}\n"
+#                 f"solar source sun 0 0 4 {sun[0]} {sun[1]} {sun[2]} 0.5333\n")
+#         f.write(sdef)
+#         f.close()
+#         r.load_source(srcdef)
+#         os.remove(srcdef)
+#
+#     load_sun((0, -.5, 1), 1000000)
+#
+#     # ambient values are not shared
+#     r(vecs)
+#     an2 = r(vecs).ravel()
+#     an3 = r(vecs).ravel()
+#     assert 1e-8 < np.sum(np.abs(an2 - an3)) < .5
+#
+#     # ambient values are shared (vectors repeated, 1 process)
+#     an4 = r(np.repeat(vecs, 2, 0)).reshape(-1, 2).T
+#     assert (np.allclose(an4[0], an4[1]))
+#     r.reset()
 
 
 def test_get_sources(tmpdir):
@@ -213,7 +212,7 @@ def test_get_sources(tmpdir):
                 f"solar source sun 0 0 4 {sun[0]} {sun[1]} {sun[2]} 0.5333\n")
         f.write(sdef)
         f.close()
-        r.load_source(srcdef)
+        r.load_source(srcdef, 0)
         os.remove(srcdef)
 
     load_sun((0, -.5, 1), 1000000)

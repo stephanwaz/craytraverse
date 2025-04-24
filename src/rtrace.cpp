@@ -274,7 +274,7 @@ See raytraverse.renderer.Rtrace
           .def("initialize", &Rtrace::py_initialize, "arglist"_a, doc_initialize)
           .def("load_scene", &Rtrace::loadscene, "octree"_a, doc_load_scene)
           .def("load_source", &Rtrace::loadsrc, "srcname"_a, "freesrc"_a=-1, doc_load_src)
-          .def("get_sources", &Rtrace::getSources, doc_get_sources)
+          .def("get_sources", &Rtrace::getSources, py::return_value_policy::take_ownership, doc_get_sources)
           .def("__call__", &Rtrace::py_call, "vecs"_a, doc_call)
           .def("update_ospec", &Rtrace::updateOSpec, "vs"_a, doc_update_ospec)
           .def_readonly("scene", &Rtrace::scene)
